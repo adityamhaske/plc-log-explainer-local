@@ -1,0 +1,20 @@
+[
+  {
+    "fault": "ALM_3021",
+    "description": "Pneumatic vacuum alarm",
+    "diagnosis": "Seal leakage or pump degradation",
+    "resolution": "Check seals and replace if necessary. Inspect pump for wear."
+  },
+  {
+    "fault": "ALM_1001",
+    "description": "Emergency Stop",
+    "diagnosis": "Operator pressed E-Stop or circuit fault",
+    "resolution": "Reset E-Stop button. Check safety circuit wiring."
+  },
+  {
+    "fault": "ALM_2050",
+    "description": "Motor Overheat",
+    "diagnosis": "Cooling fan failure or overload",
+    "resolution": "Clean cooling fins. Check load on motor."
+  }
+]

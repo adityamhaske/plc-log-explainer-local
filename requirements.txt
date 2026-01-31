@@ -1,0 +1,10 @@
+langchain
+langchain-community
+langchain-chroma
+chromadb
+streamlit
+pandas
+dask[dataframe]
+ollama
+sentence-transformers
+watchdog

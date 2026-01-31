@@ -1,0 +1,5 @@
+timestamp,machine,alarm
+2020-06-01 08:23:11,Machine_3,ALM_3021
+2020-06-01 08:45:00,Machine_1,ALM_1001
+2020-06-01 09:12:30,Machine_2,ALM_2050
+2020-06-01 10:00:00,Machine_3,ALM_3021
