@@ -1,0 +1,21 @@
+[
+  {
+    "filename": "sample.csv",
+    "timestamp": "2026-01-31T15:00:30.111107",
+    "query": "2020-06-01 08:23:11\tMachine_3\tALM_3021\n",
+    "result": {
+      "query": "2020-06-01 08:23:11\tMachine_3\tALM_3021\n",
+      "structured": {
+        "summary": "The recurring ALM_3021 alarm on Machine_3 suggests a persistent issue related to the overheating of the motor or a malfunctioning temperature sensor. This is inferred from the multiple occurrences at specific intervals (08:23:11 and 10:00:00).",
+        "evidence": "The user alarm log at 08:23:11 and 10:00:00 shows Machine_3 triggering ALM_3021, an overheating alarm. This indicates that the temperature of the machine may be consistently exceeding safe limits.",
+        "root_cause": "The root cause could be a malfunctioning or damaged temperature sensor (PT100 or PT1000 depending on the system) providing inaccurate readings, leading to false overheating alarms. Alternatively, the motor might have a fault that causes it to overheat more than usual.",
+        "actions": "1. Verify the temperature sensor's accuracy using a calibration device (e.g., Fluke 562).\n2. Inspect the motor for signs of damage or excessive heat, and replace if necessary.\n3. Ensure proper cooling is maintained around the motor (check fans, coolants, etc.).",
+        "confidence": "Medium: While there's no direct evidence of sensor malfunction or motor fault in the context, the repeated occurrence of the same alarm suggests a persistent issue that can be linked to these possibilities."
+      },
+      "evidence": [
+        "At 2020-06-01 08:23:11, Machine_3 triggered alarm ALM_3021.",
+        "At 2020-06-01 10:00:00, Machine_3 triggered alarm ALM_3021."
+      ]
+    }
+  }
+]

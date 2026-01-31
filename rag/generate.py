@@ -6,8 +6,7 @@ class Generator:
         self.model = model
 
     def generate_explanation(self, query: str, context_docs: List[str]) -> str:
-        """Generates an explanation based on query and context."""
-        
+        """Generates a structured fault explanation from retrieved context."""
         context_str = "\n".join([f"- {doc}" for doc in context_docs])
         
         prompt = f"""You are an expert industrial automation AI assistant. 
@@ -20,24 +19,27 @@ USER ALARM/LOG:
 {query}
 
 INSTRUCTIONS:
-Analyze the user alarm using the context information.
-Provide a response in the following structured format:
-1. **Summary**: A one-sentence overview of the fault.
-2. **Observed Evidence**: Which logs or manuals point to this conclusion?
-3. **Root Cause Hypotheses**: List the most likely technical causes (e.g., sensor failure, wiring, logic).
-4. **Actionable Steps**: Step-by-step specific maintenance actions.
-5. **Confidence Score**: High/Medium/Low based on how well the manual matches the alarm.
+Analyze the user alarm using the context information and provide a response in VALID JSON format with exactly these 5 categories:
 
-Do not halluncinate. If the context does not contain relevant info, state that you cannot identify the specific fault but provide general guidance.
+{{
+  "summary": "A clear, comprehensive explanation of the fault suitable for technical users (2-3 sentences)",
+  "evidence": "Detailed explanation of which specific logs, manuals, or data points support this diagnosis and why they are relevant",
+  "root_cause": "Thorough analysis of the most likely technical causes with technical details (e.g., sensor failure modes, wiring issues, logic errors, environmental factors)",
+  "actions": "Detailed step-by-step maintenance procedures with technical specifics (tools needed, safety precautions, verification steps)",
+  "confidence": "High/Medium/Low based on how well the manual matches the alarm, with brief justification"
+}}
+
+Each field should be a string with appropriate technical detail. Use newline characters for bullet points where appropriate.
+Provide evidence-based reasoning throughout - explain WHY you reached each conclusion based on the context.
+Do not hallucinate. If the context does not contain relevant info, state that explicitly in the summary.
+Return ONLY valid JSON, no markdown code blocks, no extra text.
 """
-
         response = ollama.chat(model=self.model, messages=[
             {
                 'role': 'user',
                 'content': prompt,
             },
         ])
-        
         return response['message']['content']
 
 if __name__ == "__main__":
