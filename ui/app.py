@@ -3,6 +3,9 @@ import pandas as pd
 import os
 import sys
 import time
+import json
+from datetime import datetime
+from prometheus_client import start_http_server, Summary, Counter, REGISTRY
 
 # Fix import path to allow importing from parent directory
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -13,9 +16,28 @@ from rag.embed import Indexer
 from rag.retrieve import Retriever
 from rag.generate import Generator
 
+# --- Monitoring Metrics (Singleton check) ---
+if 'metrics_started' not in st.session_state:
+    try:
+        start_http_server(8000) # Expose metrics on port 8000
+    except:
+        pass # Port likely in use by another worker
+    st.session_state['metrics_started'] = True
+
+def get_metric(cls, name, description):
+    """Helper to get existing metric or create new one to avoid duplication error."""
+    if name in REGISTRY._names_to_collectors:
+        return REGISTRY._names_to_collectors[name]
+    return cls(name, description)
+
+QUERY_LATENCY = get_metric(Summary, 'query_latency_seconds', 'Time spent processing query')
+QUERY_COUNT = get_metric(Counter, 'query_count', 'Total queries processed')
+FEEDBACK_GOOD = get_metric(Counter, 'feedback_good_total', 'Total positive feedback')
+FEEDBACK_BAD = get_metric(Counter, 'feedback_bad_total', 'Total negative feedback')
+
 # Page Config
 st.set_page_config(
-    page_title="PLC Fault Explainer", 
+    page_title="PLC Fault Explainer v2", 
     page_icon="⚡", 
     layout="wide",
     initial_sidebar_state="expanded"
@@ -29,127 +51,75 @@ st.markdown("""
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
     }
-    
-    /* Main Background */
-    .stApp {
-        background-color: #0F172A; /* Slate 900 */
-        color: #E2E8F0; /* Slate 200 */
-    }
-    
-    /* Headers */
-    h1, h2, h3 {
-        color: #F8FAFC !important;
-        font-weight: 700;
-    }
-    
-    /* Cards */
+    .stApp { background-color: #0F172A; color: #E2E8F0; }
+    h1, h2, h3 { color: #F8FAFC !important; font-weight: 700; }
     .css-card {
-        background-color: #1E293B; /* Slate 800 */
-        border: 1px solid #334155; /* Slate 700 */
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
+        background-color: #1E293B; border: 1px solid #334155;
+        border-radius: 12px; padding: 20px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); margin-bottom: 20px;
     }
-    
-    /* Buttons */
     .stButton>button {
-        background-color: #3B82F6; /* Blue 500 */
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 0.6rem 1.2rem;
-        font-weight: 600;
-        transition: all 0.2s;
-        width: 100%;
+        background-color: #3B82F6; color: white; border: none;
+        border-radius: 8px; padding: 0.6rem 1.2rem; font-weight: 600; width: 100%;
     }
-    .stButton>button:hover {
-        background-color: #2563EB; /* Blue 600 */
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    }
-    .stButton>button:active {
-        transform: translateY(1px);
-    }
-    
-    /* File Uploader */
-    .stFileUploader {
-        background-color: #1E293B;
-        border-radius: 8px;
-        padding: 10px;
-    }
-    
-    /* Inputs */
-    .stTextInput>div>div>input, .stTextArea>div>div>textarea {
-        background-color: #0F172A;
-        border: 1px solid #334155;
-        color: white;
-        border-radius: 8px;
-    }
-    
-    /* Success/Info Alerts */
-    .stSuccess, .stInfo {
-        background-color: #1E293B !important;
-        color: #E2E8F0 !important;
-        border: 1px solid #10B981;
-    }
-    
-    /* Metric Text */
-    div[data-testid="stMetricValue"] {
-        font-size: 1.5rem;
-        color: #38BDF8; /* Sky 400 */
-    }
-    
-    .step-header {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #94A3B8;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 0.5rem;
-    }
-
+    .stButton>button:hover { background-color: #2563EB; }
+    .stTextInput>div>div>input { background-color: #0F172A; border: 1px solid #334155; color: white; }
+    div[data-testid="stMetricValue"] { font-size: 1.5rem; color: #38BDF8; }
+    .step-header { font-size: 1.1rem; font-weight: 600; color: #94A3B8; text-transform: uppercase; margin-bottom: 0.5rem; }
 </style>
 """, unsafe_allow_html=True)
 
-# --- Header Section ---
+# --- Helper: Save Feedback ---
+def save_feedback(query, response, rating):
+    feedback_file = "data/feedback_logs.json"
+    entry = {
+        "timestamp": datetime.now().isoformat(),
+        "query": query,
+        "response": response,
+        "rating": rating
+    }
+    
+    data = []
+    if os.path.exists(feedback_file):
+        with open(feedback_file, "r") as f:
+            try:
+                data = json.load(f)
+            except:
+                pass
+    data.append(entry)
+    
+    with open(feedback_file, "w") as f:
+        json.dump(data, f, indent=2)
+        
+    # Update Prometheus
+    if rating == "Good":
+        FEEDBACK_GOOD.inc()
+    else:
+        FEEDBACK_BAD.inc()
+
+# --- Header ---
 col_logo, col_title = st.columns([1, 6])
-with col_logo:
-    st.markdown("# ⚡") 
+with col_logo: st.markdown("# ⚡") 
 with col_title:
-    st.title("Industrial Intelligent Assistant")
-    st.markdown("Automated Root Cause Analysis for PLC Faults")
+    st.title("Industrial Intelligent Assistant v2")
+    st.markdown("Hybrid Search • RLHF Feedback • Real-time Monitoring")
 
 st.markdown("---")
 
-# --- Onboarding / Help Expandable ---
-with st.expander("📘 How to use this system", expanded=False):
-    st.markdown("""
-    1.  **Step 1 (Sidebar)**: Upload your PLC logs (`.csv`). This gives the AI the memory of what happened.
-    2.  **Step 2 (Sidebar)**: Click 'Process Logs' to read and memorize the file.
-    3.  **Step 3 (Main)**: Describe the problem or copy an alarm code. The AI will explain it using the logs and its manual.
-    """)
-
-# --- Main Layout ---
-# We use a sidebar for Data Ingestion (Setup) and Main Area for Analysis (Task)
+# --- Sidebar ---
 with st.sidebar:
     st.markdown('<div class="step-header">Step 1: Data Source</div>', unsafe_allow_html=True)
-    st.markdown(" Upload your machine logs here to begin.")
-    
     uploaded_file = st.file_uploader("Upload CSV Log File", type=['csv'])
     
     if uploaded_file:
-        # Save temp
         save_path = os.path.join("data", uploaded_file.name)
         with open(save_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
-            
         st.success(f"Loaded: {uploaded_file.name}")
         
-        # Preview Stats
+        # Preview
         parser = LogParser(save_path)
-        preview_df = parser.get_preview()
-        st.caption("File Preview:")
-        st.dataframe(preview_df, height=100, use_container_width=True)
+        st.dataframe(parser.get_preview(), height=100, use_container_width=True)
         
         st.markdown("---")
         st.markdown('<div class="step-header">Step 2: Initialize</div>', unsafe_allow_html=True)
@@ -157,104 +127,90 @@ with st.sidebar:
         if st.button("🔄 Process & Memorize Logs"):
             progress_bar = st.progress(0)
             status_text = st.empty()
-            
             try:
-                # 1. Parsing
-                status_text.text("Parsing file...")
+                status_text.text("Parsing...")
                 parser = LogParser(save_path)
                 progress_bar.progress(20)
                 
-                # 2. Textualizing
-                status_text.text("Converting to natural language...")
+                status_text.text("Textualizing...")
                 textualizer = Textualizer()
                 all_texts = []
                 for chunk in parser.parse():
-                    texts = textualizer.process_chunk(chunk)
-                    all_texts.extend(texts)
+                    all_texts.extend(textualizer.process_chunk(chunk))
                 progress_bar.progress(50)
                 
-                # 3. Embedding
-                status_text.text("Updating Knowledge Base (Vector DB)...")
+                status_text.text("Updating Knowledge Base (Vector + Keyword Index)...")
                 idx = Indexer()
-                # Optional: Clear old logs? keeping additive for now or clear?
-                # User might want to clear. Let's infer "New Session"
-                # For simplicity, we just add.
                 idx.ingest_logs(all_texts)
                 progress_bar.progress(100)
                 
                 status_text.text("✅ Ready!")
                 st.session_state['data_ready'] = True
-                st.balloons()
                 time.sleep(1)
                 st.rerun()
-                
             except Exception as e:
                 st.error(f"Error: {e}")
 
-    # System Status Footer
     st.markdown("---")
     st.caption("System Status")
-    st.markdown("🟢 **Ollama Engine**: `Online`")
-    st.markdown("🟢 **Vector DB**: `Active`")
-    st.markdown(f"💾 **Memory Safe**: `True`")
+    st.markdown("🟢 **Hybrid Search**: `Active`")
+    st.markdown("� **Metrics**: `Port 8000`")
 
-# --- Main Analysis Area ---
+# --- Main Area ---
 st.markdown('<div class="step-header">Step 3: Fault Analysis</div>', unsafe_allow_html=True)
 
-# Using a container for the chat interface feel
 query_container = st.container()
 
 with query_container:
-    st.markdown("""
-    <div class="css-card">
-        <h3>💬 Ask the Expert System</h3>
-        <p style="color: #94A3B8;">Describe the fault, paste an error code, or ask about a specific machine event.</p>
-    </div>
-    """, unsafe_allow_html=True)
-
+    st.markdown("""<div class="css-card"><h3>💬 Ask the Expert System</h3></div>""", unsafe_allow_html=True)
     col_input, col_btn = st.columns([4, 1])
-    
     with col_input:
-        user_query = st.text_input(
-            "Query", 
-            placeholder="e.g. 'Machine_3 triggered ALM_3021' or 'Why did the pump stop?'",
-            label_visibility="collapsed"
-        )
-        
+        user_query = st.text_input("Query", placeholder="Describe fault or paste code...", label_visibility="collapsed")
     with col_btn:
         generate_btn = st.button("Analyze ➜")
 
-    if generate_btn and user_query:
-        if 'data_ready' not in st.session_state and not uploaded_file:
-             st.warning("⚠️ Please upload and process logs in the sidebar first.")
-        else:
-            with st.spinner("🔍 Reading manuals and analyzing logs..."):
-                start_time = time.time()
-                
-                # RAG Pipeline
-                ret = Retriever()
-                results = ret.query(user_query, k=3)
-                context_docs = [r.page_content for r in results]
-                
-                gen = Generator(model="mistral")
-                explanation = gen.generate_explanation(user_query, context_docs)
-                
-                end_time = time.time()
-                
-            # --- Results Display ---
-            st.markdown("### 📋 Diagnosis Report")
+if generate_btn and user_query:
+    with st.spinner("🔍 Running Hybrid Search (Semantic + Keyword)..."):
+        start_time = time.time()
+        QUERY_COUNT.inc() # Metric
+        
+        # RAG Pipeline with Latency Metric
+        with QUERY_LATENCY.time():
+            ret = Retriever()
+            results = ret.query(user_query, k=3)
+            context_docs = [r.page_content for r in results]
+            gen = Generator(model="mistral")
+            explanation = gen.generate_explanation(user_query, context_docs)
             
-            # Highlighted result card
-            st.markdown(f"""
-            <div class="css-card" style="border-left: 5px solid #3B82F6;">
-                {explanation.replace(chr(10), '<br>')}
-            </div>
-            """, unsafe_allow_html=True)
-            
-            # Evidence Section
-            with st.expander("🕵️ Retrieved Evidence (Why did I say this?)"):
-                for i, doc in enumerate(context_docs):
-                    st.markdown(f"**Evidence {i+1}:**")
-                    st.info(doc)
+        st.session_state['last_query'] = user_query
+        st.session_state['last_explanation'] = explanation
+        st.session_state['last_context'] = context_docs
+        
+        end_time = time.time()
 
-            st.caption(f"⏱️ Analysis completed in {round(end_time - start_time, 2)} seconds")
+# Display Result if available
+if 'last_explanation' in st.session_state:
+    st.markdown("### 📋 Diagnosis Report")
+    st.markdown(f"""
+    <div class="css-card" style="border-left: 5px solid #3B82F6;">
+        {st.session_state['last_explanation'].replace(chr(10), '<br>')}
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Feedback UI
+    st.markdown("#### 📢 Rate this Explanation")
+    col_good, col_bad = st.columns(2)
+    with col_good:
+        if st.button("👍 Good", key="good"):
+            save_feedback(st.session_state['last_query'], st.session_state['last_explanation'], "Good")
+            st.toast("Feedback Saved: Good")
+    with col_bad:
+        if st.button("👎 Poor", key="bad"):
+            save_feedback(st.session_state['last_query'], st.session_state['last_explanation'], "Bad")
+            st.toast("Feedback Saved: Bad")
+            
+    with st.expander("🕵️ Retrieved Evidence (Hybrid Search Results)"):
+        for i, doc in enumerate(st.session_state['last_context']):
+            st.markdown(f"**Evidence {i+1}:**")
+            st.info(doc)
+

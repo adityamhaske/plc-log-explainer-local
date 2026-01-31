@@ -8,3 +8,5 @@ dask[dataframe]
 ollama
 sentence-transformers
 watchdog
+rank_bm25
+prometheus_client

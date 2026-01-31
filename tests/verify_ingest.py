@@ -1,6 +1,9 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from ingest.parse_logs import LogParser
 from ingest.textualize import Textualizer
-import os
 
 def test_ingest():
     print("Testing Ingestion Layer...")

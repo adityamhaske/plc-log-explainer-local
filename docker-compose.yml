@@ -1,0 +1,39 @@
+services:
+  # 1. Main Application
+  app:
+    build: .
+    container_name: plc-explainer-app
+    ports:
+      - "8501:8501" # Steamlit UI
+      - "8000:8000" # Prometheus Metrics
+    volumes:
+      - ./data:/app/data # Persist data
+      - ./chroma_db:/app/chroma_db # Persist Vector DB
+    environment:
+      - OLLAMA_HOST=http://host.docker.internal:11434
+      # Note: On Mac, host.docker.internal allows access to Ollama running on Mac
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # Linux support for host access
+
+  # 2. Prometheus (Metrics Collection)
+  prometheus:
+    image: prom/prometheus
+    container_name: plc-prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+  # 3. Grafana (Dashboard)
+  grafana:
+    image: grafana/grafana
+    container_name: plc-grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      # Default user: admin / admin

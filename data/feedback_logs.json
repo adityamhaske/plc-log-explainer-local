@@ -1,0 +1,8 @@
+[
+  {
+    "timestamp": "2026-01-31T13:40:21.834192",
+    "query": "machine_2 ALM fault",
+    "response": " 1. **Summary**: Machine_2 experienced a Motor Overheat issue as indicated by ALM_2050.\n2. **Observed Evidence**: The log at 2020-06-01 09:12:30 shows that Machine_2 triggered alarm ALM_2050.\n3. **Root Cause Hypotheses**: Possible causes could be failure of the cooling fan or overload of the motor.\n4. **Actionable Steps**: Clean the cooling fins, check load on the motor and take appropriate actions based on the findings.\n5. **Confidence Score**: High",
+    "rating": "Good"
+  }
+]
