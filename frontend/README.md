@@ -1,40 +1,43 @@
-# PLC Log Explainer - Frontend (Next.js)
+# CCI-Nexus Frontend (Next.js)
 
-This is the interactive frontend for the PLC Log Explainer system, built using **Next.js 14**, **Tailwind CSS**, and **Axios**.
+The interactive user interface for the **Collaborative Commissioning Intelligence (CCI)** platform. Built for controls engineers who need rapid, accurate diagnostic insights during the high-pressure commissioning phase.
 
 ## 🏗️ Architecture
-The frontend is designed with a reactive, engineering-focused aesthetic. It communicates with the FastAPI backend via a series of RESTful endpoints.
+- **Framework**: Next.js 14 (Turbopack).
+- **Styling**: Vanilla CSS + Tailwind for a professional, dark-themed industrial aesthetic.
+- **State Management**: Reactive UI components with real-time feedback for diagnostic triggers.
 
-### Core Pages
-1.  **Home (`/`)**: Overview and system landing page.
-2.  **Analyzer (`/workflow`)**: The primary diagnostic tool.
-    - **Split-Pane Layout**: Step 1 (Log Management) and Step 2 (Interactive Preview) side-by-side.
-    - **Interactive Table**: A numbered, scrollable CSV preview where row clicks populate the diagnostic query.
-    - **AI Results Engine**: Displays technical diagnoses in 5 structured categories with confidence scoring.
-3.  **History (`/history`)**: A persistent record of all past AI diagnoses, searchable by source log file.
+## 🖱️ Key Workflows
 
-## 🛠️ Development
+### 1. Dual-Pane Log Management
+Step 1 and 2 are presented in a split-pane layout to maximize efficiency:
+- **Left Pane**: File upload and selection.
+- **Right Pane**: Numbered, interactive Log Explorer. Scroll through thousands of rows and click any row to instantly start an AI analysis.
 
-### Prerequisites
-- [Node.js](https://nodejs.org/) (v18.0 or higher)
-- App running with [FastAPI Backend](http://localhost:8000)
+### 2. Evidence-Based Diagnostic Engine
+The results are presented in five detailed technical categories:
+- **Technical Summary**, **Evidence**, **Root Cause**, **Action Steps**, and **Confidence**.
+- Technical details like PLC rack/slot info and wiring terminals are prioritized for engineers.
+
+### 3. Shared Project History
+All analyses done by teammates on the same project LAN are synced and stored. This prevents duplicate work and allows the team to build a shared repository of "known fixes" for specific commissioning bugs.
+
+## 🚀 Development Mode
 
 ### Installation
 ```bash
+cd frontend
 npm install
 ```
 
-### Running Locally
+### Local Dev Server
 ```bash
 npm run dev
 ```
-The application will be available at [http://localhost:3000](http://localhost:3000).
+Accessible at [http://localhost:3000](http://localhost:3000).
 
-## 🎨 UI & Styling
-- **Theme**: Slate-900 / Dark Engineering Theme.
-- **Framework**: Tailwind CSS for high-performance utility-first styling.
-- **Interactions**: Framer-style CSS transitions for smooth table highlighting and results entry.
-- **Icons**: Heroicons for a clean, professional technical interface.
+## 🐳 Deployment (Recommended)
+For team use, the frontend is orchestated via Docker. See the root `README.md` for `docker compose` instructions.
 
 ---
-*Optimized for rapid technical fault analysis on the factory floor.*
+*Engineering diagnostics, refined.*

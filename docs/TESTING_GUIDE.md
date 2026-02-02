@@ -1,54 +1,46 @@
-# 🧪 System Testing Guide (v4)
+# CCI-Nexus System Testing Guide (v5.0)
 
-Follow these steps to verify that the PLC Log Explainer is correctly parsing logs, retrieving manual context, and generating accurate technical diagnoses via the new interactive UI.
+Follow these steps to verify that the **Collaborative Commissioning Intelligence (CCI)** platform is correctly orchestrated via Docker and providing accurate technical diagnoses for the team.
 
-## ⚠️ Setup Verification
-1.  **Backend Running**: Ensure FastAPI is live on `http://localhost:8000`.
-2.  **Frontend Running**: Ensure Next.js is live on `http://localhost:3000`.
-3.  **Log Loading**: Select `sample_v4.csv` from the Step 1 dropdown.
-4.  **Ollama**: Ensure `ollama serve` is active and the `mistral` model is available.
-
----
-
-## ✅ Test Case 1: Interactive Row Analysis (Vacuum Leak)
-**Scenario**: Target a specific known fault via the interactive log table.
-
-1.  **Action**: Scroll through the **Step 2: Log Selection** table.
-2.  **Action**: Find a row containing `ALM_3021` (Vacuum Failure) and **click the row**.
-3.  **Action**: Verify the query box is populated with the row data.
-4.  **Action**: Click the **"Analyze Fault"** button.
-5.  **Expected Results**:
-    - **Summary**: Identifies a "Pneumatic vacuum alarm."
-    - **Root Cause**: Mentions "Seal degradation" or "Pump loss of efficiency."
-    - **Action**: Suggests checking vacuum cups, seals, and the primary pump.
+## 🐳 Container Setup Verification
+1.  **Deployment**: Run `docker compose up -d` in the root directory.
+2.  **Container Health**: Verify all containers are running:
+    - `plc-api` (FastAPI)
+    - `plc-frontend` (Next.js)
+    - `plc-prometheus` & `plc-grafana`
+3.  **Connectivity**: Ensure the frontend can reach the backend:
+    - Check the browser console at `localhost:3000` for any CORS errors.
+    - Verify that the **Step 1: Log Management** dropdown is populated with files from the backend.
 
 ---
 
-## ✅ Test Case 2: Historical Review (Emergency Stop)
-**Scenario**: Verify that the history tracking system is correctly persistent.
+## 🏎️ Functional Test: Interactive Diagnosis
+**Scenario**: Verify the core "Direct-Click" analysis workflow in the new UI.
 
-1.  **Action**: Perform an analysis for an `ALM_1001` (Emergency Stop) entry.
-2.  **Action**: Navigate to the **History** tab (top menu).
-3.  **Action**: Filter by the filename `sample_v4.csv`.
-4.  **Expected Results**:
-    - The `ALM_1001` query appears as a high-confidence record.
-    - Click "Technical Analysis Details" to verify the results match the original diagnosis.
-
----
-
-## ✅ Test Case 3: Manual Override Analysis
-**Scenario**: Verify the system can handle manual technical descriptions.
-
-1.  **Action**: Go to the **Analyzer**.
-2.  **Action**: Type into the manual query box: `"Machine 4 is overheating but there is no alarm code yet."`
-3.  **Action**: Click **"Analyze Fault."**
-4.  **Expected Results**:
-    - The AI retrieves "Motor Overheat" manual context based on the word "overheating."
-    - Suggests maintenance actions like cleaning cooling fins or checking ambient temperature.
+1.  **Project Setup**: In **Step 1**, select `sample_v4.csv`.
+2.  **Interaction**: In the **Log Explorer** (Step 2), click on a row containing a critical alarm (e.g., `ALM_2021`).
+3.  **Trigger**: Verify the technical log data is populated in the query box, then click **"Analyze Fault"**.
+4.  **Expectation**:
+    - AI generates a JSON-structured response in <10 seconds.
+    - **Step 3: Technical Insights** is populated with structured data (Summary, Evidence, Root Cause, Actions, Confidence).
 
 ---
 
-## 🔍 Quality Check
-- **Success**: The "Live Insight" section provides distinct, technical, and actionable bullet points.
-- **Accuracy**: The AI correctly identifies the *meaning* of alarm codes based on retrieved documentation.
-- **Persistence**: Refreshes do not wipe out your query results (checked via History).
+## 👥 Collaboration Test: Team History Sharing
+**Scenario**: Verify that diagnostics are correctly persistent and shared across the team.
+
+1.  **Action**: Complete an analysis for a specific fault.
+2.  **Navigation**: Go to the **History** page via the top navigation menu.
+3.  **Validation**:
+    - Locate your recently analyzed fault in the list.
+    - Verify that the file name and timestamp are accurate.
+    - Click **"View Analysis Details"** to confirm the full technical report is preserved.
+
+---
+
+## 🛠️ Performance & Monitoring
+1.  **Admin Portal**: Visit `http://localhost:30001` to access Grafana.
+2.  **Metrics Check**: Confirm that system metrics are being collected by Prometheus from the `plc-api` container.
+
+---
+*Ensuring the highest standards of diagnostic accuracy for industrial commissioning.*

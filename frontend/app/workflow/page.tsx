@@ -362,18 +362,56 @@ export default function Workflow() {
                                 {categories.map(({ key, label }) => {
                                     const value = result.structured[key as keyof StructuredResult];
 
+                                    if (key === 'actions') {
+                                        // Split actions into steps by looking for number patterns or newlines
+                                        const steps = value.split(/(?=\d+\.)|\n/).map(s => s.trim()).filter(s => s);
+                                        return (
+                                            <div key={key} className="bg-slate-900/60 border border-slate-700/50 rounded-xl p-5 hover:border-slate-500 transition-all group lg:col-span-1">
+                                                <div className="flex items-center justify-between mb-3 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                                                    <span>{label}</span>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    {steps.map((step, i) => (
+                                                        <div key={i} className="flex gap-3 text-sm text-slate-300 leading-relaxed group/item">
+                                                            <span className="flex-shrink-0 w-5 h-5 bg-slate-800 text-blue-400 rounded text-[10px] flex items-center justify-center border border-slate-700 font-bold">
+                                                                {i + 1}
+                                                            </span>
+                                                            <p className="font-medium">{step.replace(/^\d+\.\s*/, '')}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        );
+                                    }
+
+                                    if (key === 'confidence') {
+                                        // Confidence rendering: score in header, explanation below
+                                        const scoreMatch = value.match(/^(High|Medium|Low)/i);
+                                        const score = scoreMatch ? scoreMatch[0] : 'Medium';
+                                        const explanation = value.replace(/^(This diagnosis has a|Confidence:)?\s*(High|Medium|Low)[:,-]?\s*/i, '').replace(/\.?\s*(degree of certainty based on retrieved documentation\.?)$/i, '').trim();
+
+                                        return (
+                                            <div key={key} className="bg-slate-900/60 border border-slate-700/50 rounded-xl p-5 hover:border-slate-500 transition-all group lg:col-span-1">
+                                                <div className="flex items-center justify-between mb-3 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                                                    <span>{label}</span>
+                                                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-black border ${score.toLowerCase() === 'high' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : score.toLowerCase() === 'medium' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'}`}>
+                                                        {score.toUpperCase()}
+                                                    </span>
+                                                </div>
+                                                <p className="text-sm text-slate-400 leading-relaxed font-medium mt-2">
+                                                    {explanation}
+                                                </p>
+                                            </div>
+                                        );
+                                    }
+
                                     return (
                                         <div key={key} className="bg-slate-900/60 border border-slate-700/50 rounded-xl p-5 hover:border-slate-500 transition-all group">
                                             <div className="flex items-center justify-between mb-3 text-xs font-bold text-slate-500 uppercase tracking-widest">
                                                 <span>{label}</span>
-                                                {key === 'confidence' && (
-                                                    <span className={`px-2 py-0.5 rounded ${value.toLowerCase().includes('high') ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
-                                                        {value}
-                                                    </span>
-                                                )}
                                             </div>
                                             <p className="text-sm text-slate-300 leading-relaxed font-medium">
-                                                {key === 'confidence' ? `This diagnosis has a ${value} degree of certainty based on retrieved documentation.` : value}
+                                                {value}
                                             </p>
                                         </div>
                                     );

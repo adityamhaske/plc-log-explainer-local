@@ -1,55 +1,46 @@
-# Local LLM-Based PLC Log Explanation System (v4)
+# CCI-Nexus: Collaborative PLC Log Explainer (v5.0)
 
 ## 🎯 Project Overview
-This tool is an **offline, AI-powered diagnostic assistant** for industrial maintenance. It transforms cryptic PLC (Programmable Logic Controller) alarm logs into clear, actionable natural language explanations for technicians.
+**CCI-Nexus** is an enterprise-ready, **offline AI-powered diagnostic platform** specifically designed for the **commissioning and stabilization phase** of industrial automation projects. It transforms cryptic PLC (Programmable Logic Controller) alarm logs into technical natural language insights, enabling controls engineers to stabilize new systems at unprecedented speeds.
 
-Built with a modern **Next.js + FastAPI** architecture, it runs entirely **locally** (optimized for Mac Apple Silicon), ensuring data privacy, zero cloud costs, and high-speed local processing.
+Built with a containerized **Next.js + FastAPI** architecture, it ensures **100% data privacy** and zero cloud dependency by running local LLMs (Mistral-7B) directly on project-site hardware.
 
-## 🏗️ Technical Architecture
-1.  **Frontend (Next.js)**: A premium, reactive interface featuring a split-pane "Log Explorer" and interactive diagnosis results.
-2.  **Backend (FastAPI)**: High-performance API handling log parsing, RAG retrieval, and LLM orchestration.
-3.  **Vector Store (ChromaDB)**: Houses the fault knowledge base and historical log context for semantic search.
-4.  **Local LLM (Mistral-7B via Ollama)**: The reasoning engine that synthesizes retrieved data into maintenance reports.
+## 🏗️ Architecture
+- **Frontend (Next.js)**: A premium engineering dashboard with split-pane log exploration, interactive row analysis, and a shared team history.
+- **Backend (FastAPI)**: A high-performance diagnostic engine optimized for industrial log parsing and RAG (Retrieval-Augmented Generation).
+- **Security & Efficiency**: Optimized for industrial LANs, enabling multiple engineers to collaborate on a single project knowledge base.
 
 ## 📥 Inputs & 📤 Outputs
-- **Inputs**: CSV/JSON logs (Timestamp, Machine, Alarm) and Maintenance Manuals (JSON).
-- **Outputs**: 5-Category Technical Diagnosis:
-    - **Summary**: Concise fault overview.
-    - **Evidence**: Data points supporting the diagnosis.
-    - **Root Cause**: Likely technical failure points.
-    - **Action Steps**: Specific maintenance procedures.
-    - **Confidence**: AI certainty level based on documentation.
+- **Inputs**: CSV/JSON logs, Project I/O lists, and Sequence of Operations (SOO).
+- **Outputs**: Technical maintenance reports categorized into:
+    - **Technical Summary**: Rapid fault identification.
+    - **Evidence**: Data highlights supporting the diagnosis.
+    - **Root Cause**: Engineering-level failure hypotheses.
+    - **Action Steps**: Specific logic or electrical troubleshooting sequences.
+    - **Confidence**: Reliability score based on retrieved project context.
 
-## 🚀 Getting Started
+## 🚀 Deployment (Docker First)
 
 ### Prerequisites
 1.  **Ollama**: [Download & Install](https://ollama.com/).
 2.  **Mistral Model**: Run `ollama pull mistral`.
-3.  **Python 3.10+** & **Node.js 18+**.
+3.  **Docker & Docker Compose**: Installed and running.
 
-### 🛠️ Execution Steps
-1.  **Clone & Install**:
-    ```bash
-    git clone [repository-url]
-    cd [repository-folder]
-    pip install -r requirements.txt
-    cd frontend && npm install && cd ..
-    ```
-2.  **Start Backend (Terminal 1)**:
-    ```bash
-    uvicorn backend.api.main:app --reload --port 8000
-    ```
-3.  **Start Frontend (Terminal 2)**:
-    ```bash
-    cd frontend && npm run dev
-    ```
-4.  **Access App**: Open [http://localhost:3000](http://localhost:3000).
+### 🛠️ One-Click Team Start
+Run the following command in the project root to bring the entire platform online:
+```bash
+docker compose up -d --build
+```
 
-## 🖱️ How to Use the Analyzer
-1.  **Step 1: Select/Upload**: Choose a file from history or upload a new CSV in the left pane.
-2.  **Step 2: Explore & Select**: Scroll through the numbered log table in the right pane. **Click any row** to target a specific fault.
-3.  **Step 3: Analyze**: Click the **"Analyze Fault"** button to generate the report.
-4.  **History**: Visit the **History** tab to review all past diagnoses filtered by file.
+### Accessing the Platform
+- **Main Interface**: [http://localhost:3000](http://localhost:3000) (Accessible via Server IP on LAN).
+- **History & Sharing**: Visit the Shared History tab to see diagnostics from the whole team.
+- **Monitoring (Grafana)**: [http://localhost:30001](http://localhost:30001) (Admin: `admin/admin`).
+
+## 🖱️ Collaborative Workflow
+1.  **Project Setup**: Upload the project's logs and manuals in the **Log Management** pane.
+2.  **Target Fault**: Select a specific row in the **Log Explorer** table (Step 2) to target a commissioning fault.
+3.  **Collaborate**: Analyzed faults are saved to the **History**, allowing teammates to review and verify fixes in real-time.
 
 ---
-*Developed for robust, local industrial AI diagnostics.*
+*Accelerating industrial commissioning through collaborative intelligence.*

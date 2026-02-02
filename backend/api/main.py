@@ -19,7 +19,7 @@ app = FastAPI(title="PLC Fault Explainer API")
 # CORS middleware for Next.js frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],  # Allow all origins for team-based industrial LAN deployment
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -102,27 +102,57 @@ async def query_system(request: QueryRequest):
         generator = Generator(model="mistral")
         explanation = generator.generate_explanation(request.query, context_docs)
         
-        # Try to parse JSON response
+        # Try to parse JSON response with cleaning
+        clean_explanation = explanation.strip()
+        # Remove markdown code blocks if present
+        if clean_explanation.startswith("```"):
+            clean_explanation = clean_explanation.split("\n", 1)[-1].rsplit("\n", 1)[0].replace("json", "").strip()
+            
         try:
-            parsed = json.loads(explanation)
+            parsed = json.loads(clean_explanation)
             structured_result = {
                 "query": request.query,
                 "structured": parsed,
                 "evidence": context_docs
             }
         except:
-            # Fallback for non-JSON responses
-            structured_result = {
-                "query": request.query,
-                "structured": {
-                    "summary": "Error parsing response",
-                    "evidence": "",
-                    "root_cause": explanation,
-                    "actions": "",
-                    "confidence": "Low"
-                },
-                "evidence": context_docs
-            }
+            # Final attempt: direct extraction if loads failed
+            import re
+            match = re.search(r'\{.*\}', explanation, re.DOTALL)
+            if match:
+                try:
+                    parsed = json.loads(match.group(0))
+                    structured_result = {
+                        "query": request.query,
+                        "structured": parsed,
+                        "evidence": context_docs
+                    }
+                except:
+                    # Still failing? Fallback to raw string
+                    structured_result = {
+                        "query": request.query,
+                        "structured": {
+                            "summary": "Error parsing response: Content was not valid JSON",
+                            "evidence": "Raw data extracted but failed validation.",
+                            "root_cause": explanation,
+                            "actions": "Please try again or check logs.",
+                            "confidence": "Low"
+                        },
+                        "evidence": context_docs
+                    }
+            else:
+                # Fallback for non-JSON responses
+                structured_result = {
+                    "query": request.query,
+                    "structured": {
+                        "summary": "AI returned non-structured text",
+                        "evidence": "No JSON block found in the response.",
+                        "root_cause": explanation,
+                        "actions": "Review the root cause for clues.",
+                        "confidence": "Low"
+                    },
+                    "evidence": context_docs
+                }
         
         return structured_result
     except Exception as e:

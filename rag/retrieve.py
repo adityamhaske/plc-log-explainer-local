@@ -1,7 +1,16 @@
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.retrievers import BM25Retriever
-from langchain.retrievers import EnsembleRetriever
+try:
+    from langchain.retrievers.ensemble import EnsembleRetriever
+except ImportError:
+    try:
+        from langchain.retrievers import EnsembleRetriever
+    except ImportError:
+        try:
+            from langchain_community.retrievers import EnsembleRetriever
+        except ImportError:
+            EnsembleRetriever = None
 from langchain_core.documents import Document
 
 class Retriever:
@@ -33,7 +42,7 @@ class Retriever:
             
             docs = [Document(page_content=t, metadata=m) for t, m in zip(texts, metadatas)]
             
-            if docs:
+            if docs and EnsembleRetriever:
                 self.bm25_retriever = BM25Retriever.from_documents(docs)
                 self.bm25_retriever.k = 5
                 

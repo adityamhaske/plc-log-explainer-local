@@ -40,7 +40,17 @@ Return ONLY valid JSON, no markdown code blocks, no extra text.
                 'content': prompt,
             },
         ])
-        return response['message']['content']
+        raw_content = response['message']['content']
+        
+        # Robust JSON Extraction: Find the first '{' and last '}'
+        import re
+        try:
+            match = re.search(r'\{.*\}', raw_content, re.DOTALL)
+            if match:
+                return match.group(0)
+            return raw_content
+        except:
+            return raw_content
 
 if __name__ == "__main__":
     gen = Generator()

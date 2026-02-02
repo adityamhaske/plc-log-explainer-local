@@ -13,3 +13,6 @@ sentence-transformers
 watchdog
 rank_bm25
 prometheus_client
+langchain-huggingface
+langchain-core
+langchain-text-splitters

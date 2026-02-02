@@ -315,5 +315,159 @@
         "At 2024-02-01 14:30:00, Machine_4 triggered alarm ALM_4490. The machine state was recorded as 'Maintenance'."
       ]
     }
+  },
+  {
+    "filename": "sample_v4.csv",
+    "timestamp": "2026-02-02T14:54:02.849823",
+    "query": "2024-02-01 08:00:00 Machine_1 ALM_5521 Maintenance",
+    "result": {
+      "query": "2024-02-01 08:00:00 Machine_1 ALM_5521 Maintenance",
+      "structured": {
+        "summary": "Machine_1 is experiencing recurring errors (ALM_3345) and maintenance periods (ALM_5521, ALM_8090). The repeated triggering of ALM_3345 suggests a persistent issue. It is unclear from the provided context what is causing this problem.",
+        "evidence": "The logs at 2024-02-01 09:52:00, 10:54:00, and 15:42:00 show the recurrence of ALM_3345 during error states. The logs at 2024-02-01 08:00:00 and 18:24:00 indicate maintenance periods associated with ALM_5521 and ALM_8090 respectively.",
+        "root_cause": "Without further specific data, it is difficult to definitively determine the root cause. However, it could be due to a faulty sensor, wiring issue, or programming error related to the conditions that trigger these alarms. For instance, if ALM_3345 is related to an overheating condition and the cooling system is malfunctioning, this could explain the repeated errors.",
+        "actions": "To troubleshoot, start by checking the machine's sensors for accuracy and proper function. Inspect the wiring for any signs of damage or improper connections. If necessary, consult the machine's manual for specific steps related to these components. Once potential issues have been identified, follow the manual's guidance for repair or replacement.",
+        "confidence": "Medium: The recurrence of ALM_3345 provides evidence of a persistent problem, but without more detailed data, it is challenging to pinpoint the exact cause and best course of action."
+      },
+      "evidence": [
+        "At 2024-02-01 08:00:00, Machine_1 triggered alarm ALM_5521. The machine state was recorded as 'Maintenance'.",
+        "At 2024-02-01 09:52:00, Machine_1 triggered alarm ALM_3345. The machine state was recorded as 'Error'.",
+        "At 2024-02-01 15:42:00, Machine_1 triggered alarm ALM_1001. The machine state was recorded as 'Error'.",
+        "At 2024-02-01 18:24:00, Machine_1 triggered alarm ALM_8090. The machine state was recorded as 'Maintenance'.",
+        "At 2024-02-01 10:54:00, Machine_1 triggered alarm ALM_3345. The machine state was recorded as 'Error'."
+      ]
+    }
+  },
+  {
+    "filename": "sample_v4.csv",
+    "timestamp": "2026-02-02T23:16:19.619980",
+    "query": "2024-02-01 08:08:00 Machine_5 ALM_1001 Error",
+    "result": {
+      "query": "2024-02-01 08:08:00 Machine_5 ALM_1001 Error",
+      "structured": {
+        "summary": "Machine_5 has consistently triggered ALM_1001 at 08:08 on 2024-02-01, indicating an error state. This repetitive pattern suggests a persistent issue that may be related to the input or logic configuration of the PLC controlling the machine.",
+        "evidence": "The repeated triggering of ALM_1001 at the same time indicates a recurring problem, suggesting it's not a random incident but rather a persistent one. The 'Error' state recorded along with the alarm further supports this diagnosis.",
+        "root_cause": "The root cause could be a faulty sensor or input device feeding incorrect data to the PLC due to wear and tear, damage, or improper configuration. Another possibility is a logic error in the PLC program causing repeated activation of ALM_1001 under specific conditions.",
+        "actions": "1. Inspect and test all input sensors and devices connected to Machine_5 for proper functionality. Replace any malfunctioning components as necessary. 2. Verify the wiring connections between the sensors, PLC, and actuators are secure and correct. 3. Review the PLC program logic related to ALM_1001, checking for logical errors or incorrect conditional statements that might cause this alarm to trigger repeatedly. 4. Test the machine after each repair step to ensure the issue has been resolved.",
+        "confidence": "Medium - While the repetitive nature of the fault suggests a persistent problem, further investigation and testing are required to confirm the exact root cause."
+      },
+      "evidence": [
+        "At 2024-02-01 08:08:00, Machine_5 triggered alarm ALM_1001. The machine state was recorded as 'Error'.",
+        "At 2024-02-01 08:08:00, Machine_5 triggered alarm ALM_1001. The machine state was recorded as 'Error'.",
+        "At 2024-02-01 08:08:00, Machine_5 triggered alarm ALM_1001. The machine state was recorded as 'Error'.",
+        "At 2024-02-01 08:08:00, Machine_5 triggered alarm ALM_1001. The machine state was recorded as 'Error'.",
+        "At 2024-02-01 08:08:00, Machine_5 triggered alarm ALM_1001. The machine state was recorded as 'Error'."
+      ]
+    }
+  },
+  {
+    "filename": "sample_v4.csv",
+    "timestamp": "2026-02-02T23:19:04.664770",
+    "query": "2024-02-01 08:12:00 Machine_4 ALM_2045 Maintenance",
+    "result": {
+      "query": "2024-02-01 08:12:00 Machine_4 ALM_2045 Maintenance",
+      "structured": {
+        "summary": "The repeated triggering of ALM_2045 on Machine_4 at 08:12:00 indicates a maintenance-related issue. Given the consistent state recorded as 'Maintenance', it is likely that the machine was undergoing maintenance or repair, which may have caused the alarm to be triggered. No specific technical cause can be determined from the provided context.",
+        "evidence": "The repeated triggering of ALM_2045 at a specific time and the consistent machine state recorded as 'Maintenance' suggest that the issue is related to the maintenance or repair process.",
+        "root_cause": "Without more detailed context, it is impossible to determine the root cause of the problem. It could be due to improper handling of the machine during maintenance, incorrect wiring of sensors or control devices, or other unspecified issues related to the maintenance process.",
+        "actions": "To resolve this issue, it is recommended to review the maintenance procedures for Machine_4 and ensure that they are being followed correctly. Check the wiring connections of sensors and control devices, and verify that the machine is properly set up for operation. Once the maintenance is completed, restart the machine and monitor for any further issues.",
+        "confidence": "Medium - The consistent 'Maintenance' state suggests a connection between the maintenance process and the alarm triggering, but without more detailed context, the specific cause cannot be definitively determined."
+      },
+      "evidence": [
+        "At 2024-02-01 08:12:00, Machine_4 triggered alarm ALM_2045. The machine state was recorded as 'Maintenance'.",
+        "At 2024-02-01 08:12:00, Machine_4 triggered alarm ALM_2045. The machine state was recorded as 'Maintenance'.",
+        "At 2024-02-01 08:12:00, Machine_4 triggered alarm ALM_2045. The machine state was recorded as 'Maintenance'.",
+        "At 2024-02-01 08:12:00, Machine_4 triggered alarm ALM_2045. The machine state was recorded as 'Maintenance'.",
+        "At 2024-02-01 08:12:00, Machine_4 triggered alarm ALM_2045. The machine state was recorded as 'Maintenance'."
+      ]
+    }
+  },
+  {
+    "filename": "sample_v4.csv",
+    "timestamp": "2026-02-02T23:27:50.856181",
+    "query": "2024-02-02 08:00:00 Machine_3 ALM_2045 Running",
+    "result": {
+      "query": "2024-02-02 08:00:00 Machine_3 ALM_2045 Running",
+      "structured": {
+        "summary": "Machine_3 triggered ALM_2045 repeatedly while running, indicating a persistent issue with the programmed logic or hardware associated with this alarm. The repeated occurrence suggests a systemic problem rather than an isolated incident.",
+        "evidence": "The context provides multiple occurrences of the same alarm (ALM_2045) at the same time (08:00 on Feb 2, 2024) and machine state ('Running'), which suggests a recurring issue rather than a one-time event.",
+        "root_cause": "The root cause could be a wiring or sensor failure affecting the ALM_2045 circuit in Machine_3. It's also possible that there is a programming error within the PLC logic related to this alarm, causing it to trigger repeatedly. Environmental factors such as voltage fluctuations or temperature extremes might also contribute to this issue.",
+        "actions": "1. Verify the integrity of the wiring and sensors associated with ALM_2045 in Machine_3. Replace any damaged components as needed.\n2. Inspect the PLC programming for errors related to ALM_2045, especially any logic loops or conditional statements that may be causing repeated triggers.\n3. Monitor environmental conditions around the machine to ensure they are within acceptable limits for operation.",
+        "confidence": "Medium: While the context provides a clear pattern of recurring alarms, further investigation is needed to identify specific causes and potential solutions."
+      },
+      "evidence": [
+        "At 2024-02-02 08:00:00, Machine_3 triggered alarm ALM_2045. The machine state was recorded as 'Running'.",
+        "At 2024-02-02 08:00:00, Machine_3 triggered alarm ALM_2045. The machine state was recorded as 'Running'.",
+        "At 2024-02-02 08:00:00, Machine_3 triggered alarm ALM_2045. The machine state was recorded as 'Running'.",
+        "At 2024-02-02 08:00:00, Machine_3 triggered alarm ALM_2045. The machine state was recorded as 'Running'.",
+        "At 2024-02-02 08:00:00, Machine_3 triggered alarm ALM_2045. The machine state was recorded as 'Running'."
+      ]
+    }
+  },
+  {
+    "filename": "sample_v4.csv",
+    "timestamp": "2026-02-02T23:32:49.676056",
+    "query": "2024-02-01 10:54:00 Machine_1 ALM_3345 Error",
+    "result": {
+      "query": "2024-02-01 10:54:00 Machine_1 ALM_3345 Error",
+      "structured": {
+        "summary": "Error parsing response",
+        "evidence": "",
+        "root_cause": " {\n  \"summary\": \"Machine_1 triggered ALM_3345 due to repeated occurrences at the same time, suggesting a persistent error. The error is likely related to a fault in the input or output device associated with this alarm, as multiple instances within minutes indicate a hardware issue rather than software or logic errors.\",\n  \"evidence\": \"The repeated triggering of ALM_3345 at 2024-02-01 10:54:00 suggests a persistent hardware failure. The machine state being recorded as 'Error' each time the alarm is triggered supports this diagnosis.\",\n  \"root_cause\": \"The root cause is most likely a fault in the sensor or actuator responsible for triggering ALM_3345. This could be due to wiring issues, physical damage, or component failure. The fact that multiple instances within minutes indicate a persistent hardware issue rather than a software or logic error.\",\n  \"actions\": \"1. Verify the electrical connections of the device responsible for ALM_3345 are secure and undamaged. Use a multimeter to check for continuity and resistance.\n2. Inspect the sensor or actuator itself for physical damage or signs of wear.\n3. If the issue persists, replace the faulty component.\",\n  \"confidence\": \"High\"\n}",
+        "actions": "",
+        "confidence": "Low"
+      },
+      "evidence": [
+        "At 2024-02-01 10:54:00, Machine_1 triggered alarm ALM_3345. The machine state was recorded as 'Error'.",
+        "At 2024-02-01 10:54:00, Machine_1 triggered alarm ALM_3345. The machine state was recorded as 'Error'.",
+        "At 2024-02-01 10:54:00, Machine_1 triggered alarm ALM_3345. The machine state was recorded as 'Error'.",
+        "At 2024-02-01 10:54:00, Machine_1 triggered alarm ALM_3345. The machine state was recorded as 'Error'.",
+        "At 2024-02-01 10:54:00, Machine_1 triggered alarm ALM_3345. The machine state was recorded as 'Error'."
+      ]
+    }
+  },
+  {
+    "filename": "sample_v4.csv",
+    "timestamp": "2026-02-02T23:35:23.908234",
+    "query": "2024-02-01 10:54:00 Machine_1 ALM_3345 Error",
+    "result": {
+      "query": "2024-02-01 10:54:00 Machine_1 ALM_3345 Error",
+      "structured": {
+        "summary": "The recurring triggering of ALM_3345 on Machine_1 suggests a persistent issue related to the program logic or hardware involved in this alarm. The machine's continuous recording of 'Error' state indicates an ongoing problem.",
+        "evidence": "The repeated occurrence of the same alarm and error state at the exact same timestamp across multiple entries in the log suggest a consistent issue.",
+        "root_cause": "Possible root causes include a faulty sensor or actuator associated with ALM_3345, incorrect wiring or programming of the PLC input/output responsible for this alarm, or environmental factors affecting the machine's operation. The exact cause would require further investigation and analysis of the affected components and program logic.",
+        "actions": "1. Verify the integrity of associated sensors and actuators by inspecting their wiring and functionality. Replace any faulty components if necessary. \n2. Check the PLC input/output responsible for ALM_3345 for errors in programming or wiring connections. \n3. Evaluate environmental conditions around Machine_1 that might be impacting its operation. \n4. Test the machine after each repair to ensure it is functioning correctly.",
+        "confidence": "Medium: While the repeated occurrence of the alarm provides a strong indication, a thorough investigation is necessary to confirm the exact cause and appropriate repairs."
+      },
+      "evidence": [
+        "At 2024-02-01 10:54:00, Machine_1 triggered alarm ALM_3345. The machine state was recorded as 'Error'.",
+        "At 2024-02-01 10:54:00, Machine_1 triggered alarm ALM_3345. The machine state was recorded as 'Error'.",
+        "At 2024-02-01 10:54:00, Machine_1 triggered alarm ALM_3345. The machine state was recorded as 'Error'.",
+        "At 2024-02-01 10:54:00, Machine_1 triggered alarm ALM_3345. The machine state was recorded as 'Error'.",
+        "At 2024-02-01 10:54:00, Machine_1 triggered alarm ALM_3345. The machine state was recorded as 'Error'."
+      ]
+    }
+  },
+  {
+    "filename": "sample_v4.csv",
+    "timestamp": "2026-02-02T23:37:40.935154",
+    "query": "2024-02-02 02:54:00 Machine_2 ALM_2110 Maintenance",
+    "result": {
+      "query": "2024-02-02 02:54:00 Machine_2 ALM_2110 Maintenance",
+      "structured": {
+        "summary": "Machine_2 triggered ALM_2110 while in maintenance mode, indicating a possible logic error or misconfiguration of the PLC program related to the alarm. The continuous triggering suggests a loop or recurring issue.",
+        "evidence": "The repeated occurrence of ALM_2110 at the same time and machine state indicates a pattern that is not normal for typical operation, suggesting an underlying problem with the programmed logic.",
+        "root_cause": "It's likely that there is an issue with the PLC's programming or wiring connected to ALM_2110. The continuous triggering could be due to a loop in the logic or incorrect sensor input, which needs further investigation.",
+        "actions": "1. Review the PLC program related to ALM_2110 for any possible logic errors, loops, or inconsistencies.\n2. Verify the wiring and connections of the sensors associated with ALM_2110.\n3. Test the machine in maintenance mode to reproduce the issue and isolate the specific problem.",
+        "confidence": "Medium - While the repeated occurrence is indicative of an issue, additional investigation and diagnosis are required to pinpoint the exact root cause."
+      },
+      "evidence": [
+        "At 2024-02-02 02:54:00, Machine_2 triggered alarm ALM_2110. The machine state was recorded as 'Maintenance'.",
+        "At 2024-02-02 02:54:00, Machine_2 triggered alarm ALM_2110. The machine state was recorded as 'Maintenance'.",
+        "At 2024-02-02 02:54:00, Machine_2 triggered alarm ALM_2110. The machine state was recorded as 'Maintenance'.",
+        "At 2024-02-02 02:54:00, Machine_2 triggered alarm ALM_2110. The machine state was recorded as 'Maintenance'.",
+        "At 2024-02-02 02:54:00, Machine_2 triggered alarm ALM_2110. The machine state was recorded as 'Maintenance'."
+      ]
+    }
   }
 ]
