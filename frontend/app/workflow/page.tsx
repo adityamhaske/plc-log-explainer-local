@@ -85,6 +85,7 @@ export default function Workflow() {
         setUploadStatus(`Selected: ${selectedFilename}`);
         setSelectedRowIndex(null);
         setResult(null);
+        setQuery('');
 
         if (!selectedFilename) {
             setFilePreview([]);
@@ -109,16 +110,15 @@ export default function Workflow() {
         }
     };
 
-    const handleQuery = async (e?: React.FormEvent, customQuery?: string) => {
+    const handleQuery = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
-        const finalQuery = customQuery || query;
-        if (!finalQuery) return;
+        if (!query) return;
 
         try {
             setIsAnalyzing(true);
             setSubmittedRating(null);
             const res = await axios.post(`${API_URL}/api/query`, {
-                query: finalQuery,
+                query: query,
                 top_k: 3
             });
             setResult(res.data);
@@ -126,7 +126,7 @@ export default function Workflow() {
             // Save to history
             await axios.post(`${API_URL}/api/history/save`, {
                 filename: filename,
-                query: finalQuery,
+                query: query,
                 result: res.data
             });
         } catch (error) {
@@ -138,12 +138,9 @@ export default function Workflow() {
 
     const handleRowClick = (rowData: string[], index: number) => {
         setSelectedRowIndex(index);
-        // Find the alarm/fault code in the row. 
-        // Usually it's one of the columns. We'll join the row content or pick a likely column.
-        // For now, let's use the whole row as context or try to find a code-like string.
         const faultDescription = rowData.join(" ");
         setQuery(faultDescription);
-        handleQuery(undefined, faultDescription);
+        // Note: Analysis is now triggered by the "Analyze" button, not auto-triggered
     };
 
     const handleFeedback = async (rating: string) => {
@@ -174,21 +171,26 @@ export default function Workflow() {
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-slate-200">
-            <nav className="border-b border-slate-700 bg-slate-900/50 backdrop-blur sticky top-0 z-50">
+        <div className="min-h-screen bg-slate-900 text-slate-200">
+            <nav className="border-b border-slate-700 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16 items-center">
                         <div className="flex-shrink-0">
-                            <h1 className="text-2xl font-bold text-white tracking-tight">PLC Fault Explainer</h1>
+                            <h1 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                                <span className="bg-blue-600 p-1.5 rounded-lg">
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" /></svg>
+                                </span>
+                                PLC Log Explainer
+                            </h1>
                         </div>
                         <div className="flex space-x-1">
-                            <Link href="/" className="text-slate-300 hover:text-white px-3 py-2 text-sm font-medium rounded-md transition-colors hover:bg-slate-800">
+                            <Link href="/" className="text-slate-400 hover:text-white px-3 py-2 text-sm font-medium rounded-md transition-colors">
                                 Home
                             </Link>
-                            <Link href="/workflow" className="text-white bg-slate-800 px-3 py-2 text-sm font-medium rounded-md transition-colors">
+                            <Link href="/workflow" className="text-white bg-slate-800 px-3 py-2 text-sm font-medium rounded-md">
                                 Analyzer
                             </Link>
-                            <Link href="/history" className="text-slate-300 hover:text-white px-3 py-2 text-sm font-medium rounded-md transition-colors hover:bg-slate-800">
+                            <Link href="/history" className="text-slate-400 hover:text-white px-3 py-2 text-sm font-medium rounded-md transition-colors">
                                 History
                             </Link>
                         </div>
@@ -197,238 +199,220 @@ export default function Workflow() {
             </nav>
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Top Section: Steps 1 & 2 */}
-                <div className="grid grid-cols-1 gap-8 mb-8">
-                    {/* Combined Step 1 & 2: Log Explorer */}
-                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 shadow-2xl backdrop-blur-sm overflow-hidden">
-                        <div className="p-6 border-b border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                {/* Top Half Split: Step 1 (Left) and Step 2 (Right) */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+
+                    {/* Step 1: Log Management */}
+                    <div className="bg-slate-800/40 rounded-2xl border border-slate-700 shadow-xl p-6 flex flex-col">
+                        <div className="flex items-center gap-3 mb-6">
+                            <span className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-lg">1</span>
                             <div>
-                                <h2 className="text-2xl font-bold text-white mb-1">Step 1: Explore & Select</h2>
-                                <p className="text-sm text-slate-400">Upload or select a log, then click any row to analyze the specific fault.</p>
+                                <h2 className="text-lg font-bold text-white">Log Management</h2>
+                                <p className="text-xs text-slate-400">Upload or select a historical log file</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Select Historical Log</label>
+                                <select
+                                    onChange={(e) => handleFileSelect(e.target.value)}
+                                    value={filename}
+                                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all outline-none"
+                                >
+                                    <option value="">Choose a file...</option>
+                                    {uploadedFiles.map((fileData) => (
+                                        <option key={fileData.filename} value={fileData.filename}>
+                                            {fileData.filename} {fileData.upload_timestamp && `(${formatTimestamp(fileData.upload_timestamp)})`}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
 
-                            <div className="flex flex-wrap gap-3">
-                                {/* Previously Uploaded Files */}
-                                {uploadedFiles.length > 0 && (
-                                    <select
-                                        onChange={(e) => handleFileSelect(e.target.value)}
-                                        value={filename}
-                                        className="bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all outline-none"
-                                    >
-                                        <option value="">Select historical log...</option>
-                                        {uploadedFiles.map((fileData) => (
-                                            <option key={fileData.filename} value={fileData.filename}>
-                                                {fileData.filename} {fileData.upload_timestamp && `(${formatTimestamp(fileData.upload_timestamp)})`}
-                                            </option>
-                                        ))}
-                                    </select>
-                                )}
+                            <div className="relative">
+                                <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                                    <div className="w-full border-t border-slate-700/50"></div>
+                                </div>
+                                <div className="relative flex justify-center text-xs uppercase">
+                                    <span className="px-2 bg-slate-800/40 text-slate-500 font-bold">Or</span>
+                                </div>
+                            </div>
 
-                                <form onSubmit={handleFileUpload} className="flex gap-2">
+                            <form onSubmit={handleFileUpload} className="space-y-4">
+                                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Upload New CSV</label>
+                                <div className="flex gap-2">
                                     <input
                                         type="file"
                                         accept=".csv"
                                         onChange={(e) => setFile(e.target.files?.[0] || null)}
-                                        className="hidden"
-                                        id="file-upload"
+                                        className="block w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-700 file:text-white hover:file:bg-slate-600 cursor-pointer bg-slate-900/50 py-1 px-1 rounded-xl border border-slate-700"
                                     />
-                                    <label
-                                        htmlFor="file-upload"
-                                        className="cursor-pointer bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium px-4 py-2 rounded-lg border border-slate-600 transition-all flex items-center gap-2"
-                                    >
-                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                                        {file ? file.name : 'Upload New CSV'}
-                                    </label>
                                     <button
                                         type="submit"
                                         disabled={!file || loading}
-                                        className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2 rounded-lg transition-all shadow-lg active:scale-95 flex items-center gap-2"
+                                        className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 disabled:cursor-not-allowed text-white text-xs font-bold px-4 py-2 rounded-lg transition-all shadow-lg flex-shrink-0"
                                     >
-                                        {loading ? (
-                                            <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                        ) : null}
-                                        Process
+                                        {loading ? 'Processing...' : 'Upload'}
                                     </button>
-                                </form>
-                            </div>
-                        </div>
+                                </div>
+                            </form>
 
-                        {/* Interactive Table Section */}
-                        <div className="relative">
                             {uploadStatus && (
-                                <div className="px-6 py-2 bg-blue-900/20 text-blue-400 text-xs font-semibold border-b border-slate-700/50">
+                                <div className="flex items-center gap-2 px-4 py-2 bg-blue-600/10 border border-blue-500/20 rounded-lg text-xs font-medium text-blue-400">
+                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
                                     {uploadStatus}
                                 </div>
                             )}
+                        </div>
+                    </div>
 
-                            <div className="h-[500px] overflow-auto relative bg-slate-900 shadow-inner">
-                                {filePreview.length > 0 ? (
-                                    <table className="w-full text-sm text-left border-collapse">
-                                        <thead className="sticky top-0 z-20 bg-slate-800 text-slate-300 shadow-md">
-                                            <tr>
-                                                <th className="px-4 py-3 font-semibold border-b border-slate-700 w-16 text-center">#</th>
-                                                {filePreview[0]?.map((header, idx) => (
-                                                    <th key={idx} className="px-4 py-3 font-semibold border-b border-slate-700">
-                                                        {header}
-                                                    </th>
-                                                ))}
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-800">
-                                            {filePreview.slice(1).map((row, rowIdx) => (
-                                                <tr
-                                                    key={rowIdx}
-                                                    onClick={() => handleRowClick(row, rowIdx)}
-                                                    className={`cursor-pointer transition-all duration-150 relative group ${selectedRowIndex === rowIdx
-                                                            ? 'bg-blue-600/20 border-l-4 border-l-blue-500'
-                                                            : 'hover:bg-slate-800/50'
-                                                        }`}
-                                                >
-                                                    <td className="px-4 py-2.5 text-slate-500 font-mono text-center border-r border-slate-800/50 group-hover:text-slate-300">
-                                                        {rowIdx + 1}
-                                                    </td>
-                                                    {row.map((cell, cellIdx) => (
-                                                        <td key={cellIdx} className={`px-4 py-2.5 ${selectedRowIndex === rowIdx ? 'text-blue-200' : 'text-slate-400 group-hover:text-slate-200'}`}>
-                                                            {cell}
-                                                        </td>
+                    {/* Step 2: Log Explorer & Analysis */}
+                    <div className="bg-slate-800/40 rounded-2xl border border-slate-700 shadow-xl p-6 flex flex-col">
+                        <div className="flex items-center gap-3 mb-6">
+                            <span className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-lg">2</span>
+                            <div>
+                                <h2 className="text-lg font-bold text-white">Log Selection</h2>
+                                <p className="text-xs text-slate-400">Select a row from the preview or specify manually</p>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col flex-1 overflow-hidden">
+                            <div className="mb-4 bg-slate-900 rounded-xl border border-slate-700 overflow-hidden flex-1 flex flex-col">
+                                <div className="max-h-[220px] overflow-auto relative scrollbar-thin scrollbar-thumb-slate-700">
+                                    {filePreview.length > 0 ? (
+                                        <table className="w-full text-[11px] text-left border-collapse">
+                                            <thead className="sticky top-0 z-20 bg-slate-800 text-slate-400 border-b border-slate-700">
+                                                <tr>
+                                                    <th className="px-3 py-2 font-bold w-10 text-center">#</th>
+                                                    {filePreview[0]?.map((header, idx) => (
+                                                        <th key={idx} className="px-3 py-2 font-bold whitespace-nowrap">
+                                                            {header}
+                                                        </th>
                                                     ))}
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                ) : (
-                                    <div className="h-full flex flex-col items-center justify-center text-slate-500 gap-4 opacity-50">
-                                        <svg className="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" /></svg>
-                                        <p className="text-lg">No log file selected</p>
-                                    </div>
-                                )}
+                                            </thead>
+                                            <tbody>
+                                                {filePreview.slice(1).map((row, rowIdx) => (
+                                                    <tr
+                                                        key={rowIdx}
+                                                        onClick={() => handleRowClick(row, rowIdx)}
+                                                        className={`cursor-pointer border-b border-slate-800/50 transition-colors ${selectedRowIndex === rowIdx ? 'bg-blue-600/20' : 'hover:bg-slate-800/50'
+                                                            }`}
+                                                    >
+                                                        <td className="px-3 py-1.5 text-center text-slate-600 font-mono">
+                                                            {rowIdx + 1}
+                                                        </td>
+                                                        {row.map((cell, cellIdx) => (
+                                                            <td key={cellIdx} className="px-3 py-1.5 text-slate-300 truncate max-w-[120px]">
+                                                                {cell}
+                                                            </td>
+                                                        ))}
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    ) : (
+                                        <div className="p-8 text-center text-slate-600 text-sm flex flex-col items-center gap-2">
+                                            <svg className="w-8 h-8 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
+                                            No data to preview
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
-                            {/* Manual Entry Override */}
-                            <div className="p-6 bg-slate-800/30 border-t border-slate-700 flex flex-col md:flex-row gap-4 items-end">
-                                <div className="flex-1 w-full">
-                                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Step 2: Refine or Ask Question</label>
-                                    <textarea
-                                        value={query}
-                                        onChange={(e) => setQuery(e.target.value)}
-                                        placeholder="Click a row above or type a manual description here..."
-                                        rows={2}
-                                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all outline-none"
-                                    />
-                                </div>
+                            <div className="space-y-3 pt-2">
+                                <textarea
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                    placeholder="Click a row above or describe the fault here..."
+                                    rows={2}
+                                    className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+                                />
                                 <button
-                                    onClick={(e) => handleQuery(e)}
+                                    onClick={() => handleQuery()}
                                     disabled={!filename || isAnalyzing || !query}
-                                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 disabled:cursor-not-allowed text-white text-sm font-bold px-8 py-3 rounded-xl transition-all shadow-xl active:scale-95 flex items-center justify-center gap-2 h-[52px] min-w-[140px]"
+                                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 disabled:cursor-not-allowed text-white text-sm font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
                                 >
                                     {isAnalyzing ? (
-                                        <>
-                                            <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                            Analyzing
-                                        </>
-                                    ) : 'Analyze'}
+                                        <><svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generating Insight...</>
+                                    ) : (
+                                        <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> Analyze Fault</>
+                                    )}
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Bottom Section: Results */}
+                {/* Bottom Section: Results (Step 3) */}
                 {result ? (
-                    <div className="bg-slate-800/80 rounded-xl border border-slate-700 shadow-2xl backdrop-blur-md overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="p-6 border-b border-slate-700 bg-slate-800/50 flex items-center justify-between">
-                            <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                                <span className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg text-lg">3</span>
-                                Analysis Results
+                    <div className="bg-slate-800/40 rounded-2xl border border-slate-700 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="px-6 py-4 border-b border-slate-700 bg-slate-800/60 flex items-center justify-between">
+                            <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                                <span className="w-8 h-8 bg-emerald-600 text-white rounded-full flex items-center justify-center text-sm shadow-inner">3</span>
+                                Technical Diagnosis
                             </h2>
-                            <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 uppercase tracking-widest bg-slate-900 px-3 py-1.5 rounded-full border border-slate-700">
-                                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                                Live Insight
+                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-900/50 px-2 py-1 rounded border border-slate-700">
+                                Processed via Mistral-7B
                             </div>
                         </div>
 
-                        <div className="p-8">
-                            {/* Results Grid */}
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+                        <div className="p-6">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                                 {categories.map(({ key, label }) => {
                                     const value = result.structured[key as keyof StructuredResult];
 
                                     return (
-                                        <div key={key} className="bg-slate-900/50 border border-slate-700 rounded-2xl overflow-hidden shadow-xl transition-all hover:border-slate-500 group">
-                                            <div className="px-6 py-4 bg-slate-800/30 border-b border-slate-700 flex items-center justify-between">
-                                                <h3 className="font-bold text-white text-base tracking-wide uppercase text-xs">{label}</h3>
-                                                <svg className="w-5 h-5 text-slate-500 group-hover:text-blue-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        <div key={key} className="bg-slate-900/60 border border-slate-700/50 rounded-xl p-5 hover:border-slate-500 transition-all group">
+                                            <div className="flex items-center justify-between mb-3 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                                                <span>{label}</span>
+                                                {key === 'confidence' && (
+                                                    <span className={`px-2 py-0.5 rounded ${value.toLowerCase().includes('high') ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                                                        {value}
+                                                    </span>
+                                                )}
                                             </div>
-                                            <div className="p-6">
-                                                <p className="text-[16px] text-slate-300 whitespace-pre-wrap leading-relaxed font-medium">{value}</p>
-                                            </div>
+                                            <p className="text-sm text-slate-300 leading-relaxed font-medium">
+                                                {key === 'confidence' ? `This diagnosis has a ${value} degree of certainty based on retrieved documentation.` : value}
+                                            </p>
                                         </div>
                                     );
                                 })}
                             </div>
 
-                            {/* Rating Section */}
-                            <div className="border-t border-slate-700 pt-10 mt-6 text-center">
-                                <div className="max-w-xl mx-auto">
-                                    <h3 className="text-xl font-bold text-white mb-6">How accurate was this diagnosis?</h3>
-                                    <div className="grid grid-cols-3 gap-4">
+                            {/* Feedback */}
+                            <div className="border-t border-slate-700 pt-8 mt-2 text-center">
+                                <p className="text-sm font-bold text-slate-400 mb-4">Was this diagnosis helpful for your maintenance?</p>
+                                <div className="flex gap-3 justify-center">
+                                    {['good', 'can_be_better', 'bad'].map((r) => (
                                         <button
-                                            onClick={() => handleFeedback('good')}
+                                            key={r}
+                                            onClick={() => handleFeedback(r)}
                                             disabled={submittedRating !== null}
-                                            className={`py-4 rounded-2xl font-bold transition-all transform active:scale-95 ${submittedRating === 'good'
-                                                    ? 'bg-blue-800 ring-4 ring-blue-500/50 text-white'
-                                                    : submittedRating !== null
-                                                        ? 'bg-slate-800 text-slate-600 opacity-50 grayscale'
-                                                        : 'bg-blue-800 hover:bg-blue-700 text-white shadow-xl hover:-translate-y-1'
+                                            className={`px-6 py-2 rounded-lg text-xs font-bold transition-all ${submittedRating === r
+                                                ? 'bg-blue-600 text-white ring-4 ring-blue-500/20'
+                                                : submittedRating !== null
+                                                    ? 'bg-slate-800 text-slate-600'
+                                                    : 'bg-slate-700 hover:bg-slate-600 text-white'
                                                 }`}
                                         >
-                                            Good
+                                            {r === 'can_be_better' ? 'Needs Improvement' : r.toUpperCase()}
                                         </button>
-                                        <button
-                                            onClick={() => handleFeedback('can_be_better')}
-                                            disabled={submittedRating !== null}
-                                            className={`py-4 rounded-2xl font-bold transition-all transform active:scale-95 ${submittedRating === 'can_be_better'
-                                                    ? 'bg-blue-600 ring-4 ring-blue-400/50 text-white'
-                                                    : submittedRating !== null
-                                                        ? 'bg-slate-800 text-slate-600 opacity-50 grayscale'
-                                                        : 'bg-blue-600 hover:bg-blue-500 text-white shadow-xl hover:-translate-y-1'
-                                                }`}
-                                        >
-                                            Fair
-                                        </button>
-                                        <button
-                                            onClick={() => handleFeedback('bad')}
-                                            disabled={submittedRating !== null}
-                                            className={`py-4 rounded-2xl font-bold transition-all transform active:scale-95 ${submittedRating === 'bad'
-                                                    ? 'bg-blue-400 ring-4 ring-blue-300/50 text-white'
-                                                    : submittedRating !== null
-                                                        ? 'bg-slate-800 text-slate-600 opacity-50 grayscale'
-                                                        : 'bg-blue-400 hover:bg-blue-300 text-white shadow-xl hover:-translate-y-1'
-                                                }`}
-                                        >
-                                            Bad
-                                        </button>
-                                    </div>
-                                    {submittedRating && (
-                                        <div className="mt-8 p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl animate-bounce">
-                                            <p className="text-sm font-bold text-blue-400 flex items-center justify-center gap-2">
-                                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
-                                                Feedback received. Thank you!
-                                            </p>
-                                        </div>
-                                    )}
+                                    ))}
                                 </div>
+                                {submittedRating && (
+                                    <p className="text-xs font-bold text-emerald-400 mt-4 animate-pulse">✓ Feedback saved. Thank you for helping improve the AI.</p>
+                                )}
                             </div>
                         </div>
                     </div>
                 ) : (
-                    <div className="bg-slate-800/40 p-20 rounded-2xl border border-dotted border-slate-700 text-center shadow-inner group">
-                        <div className="w-20 h-20 bg-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl group-hover:bg-slate-700 transition-all group-hover:rotate-12">
-                            <svg className="w-10 h-10 text-slate-600 group-hover:text-blue-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                            </svg>
+                    <div className="p-16 border-2 border-dashed border-slate-700/50 rounded-2xl text-center">
+                        <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4 opacity-50 shadow-inner">
+                            <svg className="w-8 h-8 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                         </div>
-                        <p className="text-slate-500 text-xl font-medium">Select a log entry above to see technical insights</p>
+                        <p className="text-slate-500 font-bold text-lg">Awaiting Selection</p>
+                        <p className="text-slate-600 text-sm">Select a log entry above to generate a technical insight report</p>
                     </div>
                 )}
             </main>

@@ -212,9 +212,9 @@ async def preview_file(filename: str):
             raise HTTPException(status_code=404, detail="File not found")
         
         with open(file_path, "r") as f:
-            # Read all lines (or a very large number for safety)
-            # Using readlines() is ok for 1k-5k rows on 8GB RAM
-            lines = [line.strip() for line in f.readlines()]
+            # Read first 101 lines (header + 100 rows)
+            lines = [f.readline().strip() for _ in range(101)]
+            lines = [l for l in lines if l] # Filter empty lines
         
         rows = [line.split(',') for line in lines if line]
         return {"preview": rows}
