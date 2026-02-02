@@ -1,61 +1,54 @@
-# 🧪 System Testing Guide
+# 🧪 System Testing Guide (v4)
 
-Use these 3 specific test cases to verify that your PLC Log Explainer is correctly ingesting logs, searching the knowledge base, and generating accurate explanations.
+Follow these steps to verify that the PLC Log Explainer is correctly parsing logs, retrieving manual context, and generating accurate technical diagnoses via the new interactive UI.
 
-## ⚠️ Prerequisites
-1.  **Ensure App is Running**: `streamlit run ui/app.py`
-2.  **Ingest Data First**:
-    *   Upload `data/alpi/sample.csv` in the sidebar.
-    *   Click **"Process & Ingest"**.
-    *   *Why?* The AI needs these logs in its memory to "see" that these errors actually happened.
-
----
-
-## ✅ Test Case 1: The Vacuum Leak
-**Scenario**: A technician sees "ALM_3021" on Machine 3 and doesn't know what it means.
-
-*   **Input Query**:
-    ```text
-    Machine_3 triggered ALM_3021
-    ```
-*   **Expected Output**:
-    *   **Summary**: The AI should identify this as a "Pneumatic vacuum alarm".
-    *   **Root Cause**: It should mention "Seal leakage" or "pump degradation".
-    *   **Action**: It should suggest checking seals or the pump.
-    *   **Evidence**: Look for a reference to the manual entry for `ALM_3021` or the log at `08:23`.
+## ⚠️ Setup Verification
+1.  **Backend Running**: Ensure FastAPI is live on `http://localhost:8000`.
+2.  **Frontend Running**: Ensure Next.js is live on `http://localhost:3000`.
+3.  **Log Loading**: Select `sample_v4.csv` from the Step 1 dropdown.
+4.  **Ollama**: Ensure `ollama serve` is active and the `mistral` model is available.
 
 ---
 
-## ✅ Test Case 2: The Mystery E-Stop
-**Scenario**: Machine 1 stopped suddenly. We want to know if it was a mechanical fault or an operator action.
+## ✅ Test Case 1: Interactive Row Analysis (Vacuum Leak)
+**Scenario**: Target a specific known fault via the interactive log table.
 
-*   **Input Query**:
-    ```text
-    What happened to Machine_1 at 08:45?
-    ```
-*   **Expected Output**:
-    *   **Summary**: The AI should link this time/machine to `ALM_1001` (Emergency Stop).
-    *   **Root Cause**: "Operator pressed E-Stop" or "circuit fault".
-    *   **Action**: "Reset E-Stop button", "Check wiring".
-    *   **Evidence**: It must pull the log entry: `2020-06-01 08:45:00, Machine_1, ALM_1001`.
-
----
-
-## ✅ Test Case 3: Overheating Diagnosis
-**Scenario**: You see ALM_2050 in the logs for Machine 2 and need to fix it.
-
-*   **Input Query**:
-    ```text
-    Explain the fault on Machine_2 (ALM_2050)
-    ```
-*   **Expected Output**:
-    *   **Summary**: Identification of "Motor Overheat".
-    *   **Root Cause**: "Cooling fan failure" or "overload".
-    *   **Action**: "Clean cooling fins" or "Check load".
+1.  **Action**: Scroll through the **Step 2: Log Selection** table.
+2.  **Action**: Find a row containing `ALM_3021` (Vacuum Failure) and **click the row**.
+3.  **Action**: Verify the query box is populated with the row data.
+4.  **Action**: Click the **"Analyze Fault"** button.
+5.  **Expected Results**:
+    - **Summary**: Identifies a "Pneumatic vacuum alarm."
+    - **Root Cause**: Mentions "Seal degradation" or "Pump loss of efficiency."
+    - **Action**: Suggests checking vacuum cups, seals, and the primary pump.
 
 ---
 
-## 🔍 How to Interpret Results
-*   **Success**: The "Explanation" section gives you clear English sentences that match the "Expected Output" above.
-*   **Partial Success**: It finds the log ("I see event X") but doesn't explain the root cause (Knowledge Base retrieval failed).
-*   **Failure**: It says "I don't have information about this" or hallucinates a completely wrong error (e.g., calling ALM_3021 a "Door Open" error).
+## ✅ Test Case 2: Historical Review (Emergency Stop)
+**Scenario**: Verify that the history tracking system is correctly persistent.
+
+1.  **Action**: Perform an analysis for an `ALM_1001` (Emergency Stop) entry.
+2.  **Action**: Navigate to the **History** tab (top menu).
+3.  **Action**: Filter by the filename `sample_v4.csv`.
+4.  **Expected Results**:
+    - The `ALM_1001` query appears as a high-confidence record.
+    - Click "Technical Analysis Details" to verify the results match the original diagnosis.
+
+---
+
+## ✅ Test Case 3: Manual Override Analysis
+**Scenario**: Verify the system can handle manual technical descriptions.
+
+1.  **Action**: Go to the **Analyzer**.
+2.  **Action**: Type into the manual query box: `"Machine 4 is overheating but there is no alarm code yet."`
+3.  **Action**: Click **"Analyze Fault."**
+4.  **Expected Results**:
+    - The AI retrieves "Motor Overheat" manual context based on the word "overheating."
+    - Suggests maintenance actions like cleaning cooling fins or checking ambient temperature.
+
+---
+
+## 🔍 Quality Check
+- **Success**: The "Live Insight" section provides distinct, technical, and actionable bullet points.
+- **Accuracy**: The AI correctly identifies the *meaning* of alarm codes based on retrieved documentation.
+- **Persistence**: Refreshes do not wipe out your query results (checked via History).

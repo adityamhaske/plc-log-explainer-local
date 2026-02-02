@@ -1,43 +1,23 @@
 # 🚀 System Improvement Roadmap
 
-This document outlines the architectural and functional steps to take your **Local PLC Log Explainer** from a single-user prototype to a robust, multi-user enterprise tool.
+This document outlines the evolutionary steps for the **Local PLC Log Explainer**.
 
-## 1. Handling Multiple Users (Concurrency & Scale)
-Currently, the system runs locally on one machine. If 5 people query it at once, it will slow down or crash because the LLM (Ollama) and ChromaDB are resource-intensive.
+## ✅ Phase 1: Foundational Modernization (Completed)
+- **Client-Server Architecture**: Migrated from a single Streamlit script to a high-performance **FastAPI backend** and a decoupled **Next.js (React) frontend**.
+- **Interactive UI**: Implemented a split-pane Explorer with a numbered log table, clickable row analysis, and a premium "Live Insight" results engine.
+- **Robust History**: Developed a file-based session tracking system with persistent storage for all queries and AI diagnoses.
+- **Local LLM Orchestration**: Integrated Mistral-7B via Ollama for zero-cost, private technical reasoning.
 
-*   **Move to Client-Server Architecture**:
-    *   **Frontend**: Keep Streamlit (or move to React/Next.js) but host it on a lightweight web server (e.g., Nginx).
-    *   **Backend API**: Create a dedicated FastAPI / Flask server to handle requests so the UI isn't doing the heavy lifting.
-    *   **Task Queue (Celery/Redis)**: When a user asks a question, put it in a queue. Workers process them one by one. This prevents the server from freezing if 10 users click "Analyze" simultaneously.
+## 🛠️ Phase 2: Enterprise Scaling (Ongoing)
+- **Advanced Metadata Filtering**: Allow users to filter history by machine ID, timestamp ranges, or specific technicians.
+- **Dockerization**: Containerize Backend, Frontend, and Vector Store for "one-click" deployment on factory-floor workstations.
+- **OPC UA / MQTT Integration**: Implement real-time log ingestion pipelines that pull directly from live PLCs instead of relying on CSV uploads.
 
-*   **Multi-Tenancy**:
-    *   Separate data by user or factory site. Use `user_id` metadata in ChromaDB so User A at Factory X doesn't see logs from Factory Y.
+## 📈 Phase 3: AI Intelligence Upgrades
+- **Knowledge Graph Integration**: Map PLC manual relationships (e.g., "Pump A" is connected to "Valve B") to provide deeper root cause analysis.
+- **Hybrid Semantic Search**: Combine vector-based "meaning" search with exact-match keyword indexing for specific alarm codes.
+- **Multi-Model Support**: Support switching between Mistral, Llama-3, or CodeLlama for different diagnostic tasks.
 
-## 2. Robust Data Management (Robustness)
-*   **Persistent Database**:
-    *   Move from CSVs to a real time-series database (e.g., **InfluxDB** or **PostgreSQL**). This handles millions of logs efficiently and prevents "out of memory" errors.
-*   **Vector DB Upgrade**:
-    *   Migrate from local file-based ChromaDB to a server-hosted version (or Qdrant/Weaviate) that supports backups, scaling, and concurrent writes.
-*   **Automated Ingestion Pipelines**:
-    *   Instead of manually uploading CSVs, write scripts that automatically pull logs from the PLCs (via OPC UA or MQTT) every hour.
-
-## 3. Advanced AI Capabilities
-*   **Hybrid Search**:
-    *   Combine vector search (meaning) with keyword search (exact match). If an easier searches for "Error 3021", keyword search is better. If they ask "Why is the pump leaking?", vector search is better. combining them improves accuracy.
-*   **Feedback Loop (RLHF)**:
-    *   Add "Thumbs Up/Down" buttons to the UI. If a technician says an explanation was wrong, save that data to fine-tune the model later.
-*   **Vision Support**:
-    *   Allow technicians to upload photos of the broken machine. Use a Vision-Language Model (like LLaVA) to analyze the image alongside the logs.
-
-## 4. Operational Robustness (DevOps)
-*   **Dockerization**:
-    *   Package the App, Ollama, and ChromaDB into Docker containers. This ensures it runs exactly the same on every server.
-*   **Monitoring**:
-    *   Integration with Prometheus/Grafana to track:
-        *   Average query latency (Target: <5s).
-        *   Error rates.
-        *   LLM token usage.
-
-## 5. Security
-*   **Authentication**: Add a login screen (OAuth2/SSO) so only authorized personnel can access sensitive factory data.
-*   **Audit Logs**: Record who asked what and when, for compliance and safety investigations.
+## 🔒 Phase 4: Security & Compliance
+- **Local LDAP/SSO**: Integrate with factory user management systems for secure access.
+- **Audit Logging**: Maintain tamper-proof logs of all AI diagnoses for safety and regulatory compliance.
