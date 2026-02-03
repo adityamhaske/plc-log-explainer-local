@@ -1,4 +1,5 @@
 import ollama
+import re
 from typing import List
 
 class Generator:
@@ -25,11 +26,11 @@ Analyze the user alarm using the context information and provide a response in V
   "summary": "A clear, comprehensive explanation of the fault suitable for technical users (2-3 sentences)",
   "evidence": "Detailed explanation of which specific logs, manuals, or data points support this diagnosis and why they are relevant",
   "root_cause": "Thorough analysis of the most likely technical causes with technical details (e.g., sensor failure modes, wiring issues, logic errors, environmental factors)",
-  "actions": "Detailed step-by-step maintenance procedures with technical specifics (tools needed, safety precautions, verification steps)",
+  "actions": "Provide a clean, numbered list (1., 2., 3.) with one step per line. Avoid using dots inside numbers (e.g., use 'ALM 2' instead of 'ALM 2.0') to prevent parsing errors.",
   "confidence": "High/Medium/Low based on how well the manual matches the alarm, with brief justification"
 }}
 
-Each field should be a string with appropriate technical detail. Use newline characters for bullet points where appropriate.
+Each field should be a string. For "actions", use a simple numbered list format where each step starts with the number and a dot on a new line.
 Provide evidence-based reasoning throughout - explain WHY you reached each conclusion based on the context.
 Do not hallucinate. If the context does not contain relevant info, state that explicitly in the summary.
 Return ONLY valid JSON, no markdown code blocks, no extra text.
@@ -42,17 +43,8 @@ Return ONLY valid JSON, no markdown code blocks, no extra text.
         ])
         raw_content = response['message']['content']
         
-        # Robust JSON Extraction: Find the first '{' and last '}'
-        import re
         try:
             match = re.search(r'\{.*\}', raw_content, re.DOTALL)
-            if match:
-                return match.group(0)
-            return raw_content
+            return match.group(0) if match else raw_content
         except:
             return raw_content
-
-if __name__ == "__main__":
-    gen = Generator()
-    # Stub test
-    print(gen.generate_explanation("ALM_3021", ["Fault Code: ALM_3021. Description: Vacuum alarm."]))

@@ -16,3 +16,6 @@ prometheus_client
 langchain-huggingface
 langchain-core
 langchain-text-splitters
+pymupdf
+openpyxl
+python-docx

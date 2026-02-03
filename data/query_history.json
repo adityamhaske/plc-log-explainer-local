@@ -469,5 +469,93 @@
         "At 2024-02-02 02:54:00, Machine_2 triggered alarm ALM_2110. The machine state was recorded as 'Maintenance'."
       ]
     }
+  },
+  {
+    "filename": "sample.csv",
+    "timestamp": "2026-02-02T23:44:42.339472",
+    "query": "2020-06-01 09:12:30 Machine_2 ALM_2050",
+    "result": {
+      "query": "2020-06-01 09:12:30 Machine_2 ALM_2050",
+      "structured": {
+        "summary": "Machine_2 triggered ALM_2050 multiple times at 2020-06-01 09:12:30, indicating a persistent issue. This alarm (ALM_2050) is likely related to a communication error or faulty input/output (I/O) module, as the repetitive triggering suggests a loop in the program logic or a continuous failure in the sensor or actuator associated with the affected I/O.",
+        "evidence": "The repeated triggering of ALM_2050 at the exact same time indicates a persistent issue that is likely due to either a communication error, faulty I/O module, or a problem with the sensor or actuator associated with the affected I/O. This is supported by the fact that the logs show multiple instances of this alarm being triggered within seconds.",
+        "root_cause": "The root cause for the repetitive triggering of ALM_2050 could be a communication error between the Programmable Logic Controller (PLC) and the I/O module, or a faulty input/output module itself. This may be due to wiring issues, logic errors in the program, or physical damage to the components. Environmental factors such as excessive heat, moisture, or electromagnetic interference could also potentially contribute to this issue.",
+        "actions": "1. Verify the wiring connections between the PLC and the affected I/O module. Ensure all connectors are properly seated, wire terminations are secure, and there are no visible signs of damage. \n2. Check the status of the associated sensor or actuator for any mechanical issues that may be causing a malfunction. Replace if necessary.\n3. Inspect the PLC program logic for any potential errors that may cause the repeated triggering of ALM_2050, such as endless loops or unintended recursions. \n4. Perform a diagnostic test on the I/O module using the manufacturer's software to identify any faulty components.\n5. If necessary, replace the I/O module.",
+        "confidence": "Medium: While the exact cause cannot be definitively determined without further investigation, the repetitive triggering of ALM_2050 strongly suggests a persistent issue related to either a communication error, faulty I/O module, or problem with the associated sensor or actuator."
+      },
+      "evidence": [
+        "At 2020-06-01 09:12:30, Machine_2 triggered alarm ALM_2050.",
+        "At 2020-06-01 09:12:30, Machine_2 triggered alarm ALM_2050.",
+        "At 2020-06-01 09:12:30, Machine_2 triggered alarm ALM_2050.",
+        "At 2020-06-01 09:12:30, Machine_2 triggered alarm ALM_2050.",
+        "At 2020-06-01 09:12:30, Machine_2 triggered alarm ALM_2050."
+      ]
+    }
+  },
+  {
+    "filename": "Nexus_Diagnostic_Logs_1k.csv",
+    "timestamp": "2026-02-03T00:50:59.709410",
+    "query": "2026-02-02 08:28:43 INF_101 Pallet Detected PX_101 Auto",
+    "result": {
+      "query": "2026-02-02 08:28:43 INF_101 Pallet Detected PX_101 Auto",
+      "structured": {
+        "summary": "Repeated triggering of ALM_2050 on Machine_2 at 09:12:30 indicates a persistent issue likely related to the pallet detection sensor PX_101. The user alarm INF_101 Pallet Detected PX_101 Auto from 2026-02-02 08:28:43 suggests that this sensor might be malfunctioning or incorrectly configured, causing false positives.",
+        "evidence": "The user alarm INF_101 Pallet Detected PX_101 Auto provides evidence of the proper functioning of the pallet detection sensor in a different context. The repeated triggering of ALM_2050 at the same time on multiple occasions suggests a persistent issue, making it likely that the problem is with this specific sensor.",
+        "root_cause": "The root cause appears to be a failure or misconfiguration of the pallet detection sensor PX_101. This could result in either continuous detection of a pallet (leading to false positives) or intermittent failure to detect a pallet (leading to false negatives), both of which may trigger ALM_2050.",
+        "actions": "To resolve this issue, follow these steps: 1. Verify the wiring connection between the pallet detection sensor PX_101 and the PLC input associated with ALM_2050. 2. Check the sensor for debris or any other obstructions that might interfere with its operation. 3. If the issue persists, recalibrate or replace the sensor as necessary. Always follow proper safety protocols when working near moving machinery.",
+        "confidence": "Medium - The user alarm provides supporting evidence of the proper functioning of the pallet detection sensor in a different context, but the repeated triggering of ALM_2050 suggests a persistent issue that may not be fully explained by this single piece of evidence."
+      },
+      "evidence": [
+        "At 2020-06-01 09:12:30, Machine_2 triggered alarm ALM_2050.",
+        "At 2020-06-01 09:12:30, Machine_2 triggered alarm ALM_2050.",
+        "At 2020-06-01 09:12:30, Machine_2 triggered alarm ALM_2050.",
+        "At 2020-06-01 09:12:30, Machine_2 triggered alarm ALM_2050.",
+        "At 2020-06-01 09:12:30, Machine_2 triggered alarm ALM_2050."
+      ]
+    }
+  },
+  {
+    "filename": "Nexus_Diagnostic_Logs_1k.csv",
+    "timestamp": "2026-02-03T00:58:13.687492",
+    "query": "2026-02-02 08:00:25 INF_105 Vacuum Engaged SOL_401 Auto",
+    "result": {
+      "query": "2026-02-02 08:00:25 INF_105 Vacuum Engaged SOL_401 Auto",
+      "structured": {
+        "summary": "The repeated triggering of ALM_5521 on Machine_3 during maintenance mode at a specific time suggests an issue with the machine transitioning from maintenance to operational state. The INF_105 log indicating vacuum engagement might be related, as it could interfere with normal operation during maintenance.",
+        "evidence": "The repeated occurrence of ALM_5521 on Machine_3 during maintenance mode indicates a pattern that may indicate a problem with the machine's state transition. The INF_105 log was triggered around the same time as the alarms, suggesting a possible connection.",
+        "root_cause": "The root cause could be a logic error in the Programmable Logic Controller (PLC) causing the machine to interpret maintenance mode incorrectly or react improperly to vacuum engagement. Another possibility is a wiring issue between the vacuum sensor and the PLC, causing false readings that trigger ALM_5521.",
+        "actions": "1. Verify the wiring connections between the vacuum sensor and the PLC for any signs of damage or loose connections.\n2. Inspect the PLC programming to ensure proper logic flow during maintenance mode and vacuum engagement.\n3. Test the machine in maintenance mode without vacuum engagement to verify if ALM_5521 triggers.",
+        "confidence": "Medium: While the pattern of alarms suggests a problem, more specific data or logs related to the PLC programming and vacuum sensor would provide stronger evidence."
+      },
+      "evidence": [
+        "At 2024-02-02 00:20:00, Machine_3 triggered alarm ALM_5521. The machine state was recorded as 'Maintenance'.",
+        "At 2024-02-02 00:20:00, Machine_3 triggered alarm ALM_5521. The machine state was recorded as 'Maintenance'.",
+        "At 2024-02-02 00:20:00, Machine_3 triggered alarm ALM_5521. The machine state was recorded as 'Maintenance'.",
+        "At 2024-02-02 00:20:00, Machine_3 triggered alarm ALM_5521. The machine state was recorded as 'Maintenance'.",
+        "At 2024-02-02 00:20:00, Machine_3 triggered alarm ALM_5521. The machine state was recorded as 'Maintenance'."
+      ]
+    }
+  },
+  {
+    "filename": "Nexus_Diagnostic_Logs_1k.csv",
+    "timestamp": "2026-02-03T01:49:07.204290",
+    "query": "2026-02-02 08:27:11 INF_200 Fault Reset by Operator Manual",
+    "result": {
+      "query": "2026-02-02 08:27:11 INF_200 Fault Reset by Operator Manual",
+      "structured": {
+        "summary": "On February 1st at 08:08, Machine_5 triggered ALM_1001 due to an emergency stop either by operator intervention or circuit fault. On February 2nd at 08:27, the operator manually reset the alarm (INF_200).",
+        "evidence": "The summary is based on the user alarm logs INF_200 and ALM_1001 which indicate a manual reset of an emergency stop alarm on February 2nd.",
+        "root_cause": "Though not explicitly provided in the context, the root cause for ALM_1001 could be either operator intervention or circuit fault as stated in the diagnosis. The operator resetting the alarm suggests that they may have triggered it by pressing the E-Stop button accidentally.",
+        "actions": "1. Check safety circuit wiring to ensure there are no faults causing unintentional emergency stops.\n2. Inform the operator about the importance of caution while using the E-Stop button.",
+        "confidence": "Medium"
+      },
+      "evidence": [
+        "At 2024-02-01 08:08:00, Machine_5 triggered alarm ALM_1001. The machine state was recorded as 'Error'.",
+        "Fault Code: ALM_1001. Description: Emergency Stop. Diagnosis: Operator pressed E-Stop or circuit fault. Resolution: Reset E-Stop button. Check safety circuit wiring..",
+        "At Unknown Time, Unknown Machine triggered alarm Unknown Alarm.",
+        "Fault Code: ALM_2050. Description: Motor Overheat. Diagnosis: Cooling fan failure or overload. Resolution: Clean cooling fins. Check load on motor..",
+        "Fault Code: ALM_3021. Description: Pneumatic vacuum alarm. Diagnosis: Seal leakage or pump degradation. Resolution: Check seals and replace if necessary. Inspect pump for wear.."
+      ]
+    }
   }
 ]

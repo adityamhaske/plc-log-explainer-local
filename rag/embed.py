@@ -58,19 +58,22 @@ class Indexer:
     def ingest_logs(self, log_texts: list[str]):
         """Ingests textualized logs as historical context."""
         documents = [
-            Document(page_content=text, metadata={"source": "log_history"}) 
+            Document(page_content=text, metadata={"source": "log_history", "content_type": "log"}) 
             for text in log_texts
         ]
         
-        # Batch ingest to avoid limits if needed, but Chroma handles small batches ok
-        # For 8GB RAM, we might want to be careful, but here we process chunks.
         if documents:
             self.vector_store.add_documents(documents)
             print(f"Ingested {len(documents)} log entries.")
 
-if __name__ == "__main__":
-    # Test
-    idx = Indexer()
-    idx.clear()
-    idx.ingest_manuals("data/auto_faults/knowledge_base.json")
-    idx.ingest_logs(["At 10:00, Machine 1 error.", "At 10:05, Machine 1 stop."])
+    def ingest_documents(self, documents: list[Document]):
+        """Ingests generic LangChain documents into the store."""
+        if documents:
+            # Ensure metadata has at least source and content_type
+            for doc in documents:
+                if "content_type" not in doc.metadata:
+                    doc.metadata["content_type"] = "knowledge_base"
+            
+            self.vector_store.add_documents(documents)
+            print(f"Ingested {len(documents)} knowledge base documents.")
+

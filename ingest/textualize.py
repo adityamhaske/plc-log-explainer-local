@@ -28,13 +28,3 @@ class Textualizer:
         """Converts a dataframe chunk to a list of text strings."""
         return df.apply(self.row_to_text, axis=1).tolist()
 
-if __name__ == "__main__":
-    # Test
-    data = {
-        "timestamp": ["2020-06-01 08:23:11"],
-        "machine": ["Machine_3"],
-        "alarm": ["ALM_3021"]
-    }
-    df = pd.DataFrame(data)
-    tex = Textualizer()
-    print(tex.process_chunk(df))

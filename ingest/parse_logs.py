@@ -49,7 +49,3 @@ class LogParser:
         except StopIteration:
             return pd.DataFrame()
 
-if __name__ == "__main__":
-    # Test
-    parser = LogParser("data/alpi/sample.csv")
-    print(parser.get_preview())

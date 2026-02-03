@@ -39,7 +39,3 @@ ENV/
 # Streamlit
 .streamlit/
 chroma_db/
-
-# Project Specific
-# We keep the stub data for the demo, but exclude large downloads if any existed
-# data/alpi/file_downloaded
